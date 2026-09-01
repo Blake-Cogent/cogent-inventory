@@ -763,25 +763,25 @@
 
     <div class="nav-links">
 
-        <a href="index.html" class="nav-link active">
+        <a href="#" class="nav-link active">
             DASHBOARD
         </a>
 
-        <a href="inventory.html" class="nav-link">
-        INVENTORY
-    </a>
+        <a href="#" class="nav-link">
+            INVENTORY
+        </a>
 
-    <a href="transactions.html" class="nav-link">
-        TRANSACTIONS
-    </a>
+        <a href="#" class="nav-link">
+            TRANSACTIONS
+        </a>
 
-    <a href="vendors.html" class="nav-link">
-        VENDORS
-    </a>
+        <a href="vendors.html" class="nav-link">
+            VENDORS
+        </a>
 
-    <a href="reports.html" class="nav-link">
-        REPORTS
-    </a>
+        <a href="#" class="nav-link">
+            REPORTS
+        </a>
 
     </div>
 
@@ -852,7 +852,7 @@
     <!-- QUICK ACTIONS -->
     <section class="quick-actions">
 
-        <div class="action-card primary">
+        <div class="action-card primary" id="scanItemAction" role="button" tabindex="0" title="Open Inventory">
 
             <span class="action-code">
                 F1
@@ -873,7 +873,7 @@
         </div>
 
 
-        <div class="action-card">
+        <div class="action-card" id="checkInAction" role="button" tabindex="0" title="Open Inventory">
 
             <span class="action-code">
                 F2
@@ -894,7 +894,7 @@
         </div>
 
 
-        <div class="action-card">
+        <div class="action-card" id="checkOutAction" role="button" tabindex="0" title="Open Inventory">
 
             <span class="action-code">
                 F3
@@ -915,7 +915,7 @@
         </div>
 
 
-        <div class="action-card">
+        <div class="action-card" id="addInventoryAction" role="button" tabindex="0" title="Open Inventory">
 
             <span class="action-code">
                 F4
@@ -1016,7 +1016,7 @@
                     Recent Activity
                 </div>
 
-                <a href="#" class="panel-link">
+                <a href="transactions.html" class="panel-link">
                     VIEW ALL
                 </a>
 
@@ -1164,7 +1164,7 @@
                     Low Stock
                 </div>
 
-                <a href="#" class="panel-link">
+                <a href="inventory.html" class="panel-link">
                     VIEW INVENTORY
                 </a>
 
@@ -1683,6 +1683,35 @@
         }
     );
 
+})();
+</script>
+
+<!-- DASHBOARD QUICK ACTIONS -->
+<script>
+(function bindDashboardActions() {
+    const actions = {
+        scanItemAction: "inventory.html",
+        checkInAction: "inventory.html",
+        checkOutAction: "inventory.html",
+        addInventoryAction: "inventory.html"
+    };
+
+    Object.entries(actions).forEach(([id, destination]) => {
+        const card = document.getElementById(id);
+        if (!card) return;
+
+        const open = () => {
+            window.location.href = destination;
+        };
+
+        card.addEventListener("click", open);
+        card.addEventListener("keydown", event => {
+            if (event.key === "Enter" || event.key === " ") {
+                event.preventDefault();
+                open();
+            }
+        });
+    });
 })();
 </script>
 

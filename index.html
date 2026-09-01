@@ -5,6 +5,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
+
 ```
 <title>Cogent Hex | Inventory Control</title>
 
@@ -786,19 +790,35 @@
 
         <div class="user-info">
 
-            <div class="user-name">
-                SYSTEM USER
+            <div class="user-name" id="currentUserName">
+                LOADING USER...
             </div>
 
-            <div class="user-role">
-                INVENTORY OPERATOR
+            <div class="user-role" id="currentUserRole">
+                AUTHENTICATING...
             </div>
 
         </div>
 
-        <div class="user-avatar">
-            SU
+        <div class="user-avatar" id="currentUserAvatar">
+            --
         </div>
+
+        <button
+            type="button"
+            id="logoutButton"
+            style="
+                border:1px solid var(--border-light);
+                background:transparent;
+                color:var(--text-secondary);
+                padding:8px 10px;
+                font-family:var(--font-mono);
+                font-size:10px;
+                cursor:pointer;
+            "
+        >
+            SIGN OUT
+        </button>
 
     </div>
 
@@ -1302,6 +1322,80 @@
 
 </footer>
 
+
+
+<!-- SUPABASE AUTHENTICATION -->
+<script>
+(async function requireAuthentication() {
+
+    const { data: { user }, error } =
+        await supabaseClient.auth.getUser();
+
+    if (error || !user) {
+        window.location.replace("login.html");
+        return;
+    }
+
+    const { data: profile, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select("first_name, last_name, display_name, role, active")
+            .eq("id", user.id)
+            .single();
+
+    if (profileError || !profile || !profile.active) {
+        await supabaseClient.auth.signOut();
+        window.location.replace("login.html");
+        return;
+    }
+
+    const displayName =
+        profile.display_name ||
+        [profile.first_name, profile.last_name]
+            .filter(Boolean)
+            .join(" ") ||
+        user.email;
+
+    const roleName =
+        profile.role
+            .replace("_", " ")
+            .toUpperCase();
+
+    const initials =
+        displayName
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(name => name[0].toUpperCase())
+            .join("");
+
+    document.getElementById("currentUserName").textContent =
+        displayName.toUpperCase();
+
+    document.getElementById("currentUserRole").textContent =
+        roleName;
+
+    document.getElementById("currentUserAvatar").textContent =
+        initials || "US";
+
+    document.getElementById("logoutButton").addEventListener(
+        "click",
+        async function () {
+
+            const { error } =
+                await supabaseClient.auth.signOut();
+
+            if (error) {
+                console.error("Sign out error:", error);
+                return;
+            }
+
+            window.location.replace("login.html");
+        }
+    );
+
+})();
+</script>
 
 <!-- CLOCK -->
 <script>

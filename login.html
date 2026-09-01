@@ -682,18 +682,7 @@
 </div>
 
 
-<!-- TEMPORARY LOGIN LOGIC -->
-
 <script>
-
-    /*
-     * TEMPORARY DEVELOPMENT LOGIN
-     *
-     * This is NOT real authentication.
-     *
-     * Once the backend is created, this will be
-     * replaced with secure server-side authentication.
-     */
 
     const loginForm =
         document.getElementById("loginForm");
@@ -701,11 +690,11 @@
     const loginError =
         document.getElementById("loginError");
 
-
-    loginForm.addEventListener("submit", function(event) {
+    loginForm.addEventListener("submit", async function(event) {
 
         event.preventDefault();
 
+        loginError.classList.remove("visible");
 
         const username =
             document.getElementById("username").value.trim();
@@ -713,22 +702,39 @@
         const password =
             document.getElementById("password").value;
 
+        if (!username || !password) {
+            loginError.textContent =
+                "AUTHENTICATION FAILED — ENTER USER ID AND PASSWORD";
 
-        /*
-         * Temporary development credentials.
-         *
-         * REMOVE THESE when backend authentication
-         * is implemented.
-         */
+            loginError.classList.add("visible");
 
-        if (
-            username === "admin" &&
-            password === "admin"
-        ) {
+            return;
+        }
+
+        try {
+
+            const { data, error } =
+                await supabaseClient.auth.signInWithPassword({
+                    email: username,
+                    password: password
+                });
+
+            if (error) {
+                throw error;
+            }
+
+            if (!data.user) {
+                throw new Error("Authentication failed.");
+            }
 
             window.location.href = "index.html";
 
-        } else {
+        } catch (error) {
+
+            console.error("Login error:", error);
+
+            loginError.textContent =
+                "AUTHENTICATION FAILED — CHECK USER ID AND PASSWORD";
 
             loginError.classList.add("visible");
 

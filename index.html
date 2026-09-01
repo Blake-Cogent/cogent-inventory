@@ -645,6 +645,195 @@
     }
 
     /* ==============================
+       INVENTORY TRANSACTION MODAL
+    ============================== */
+
+    .transaction-modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        background: rgba(0,0,0,0.72);
+        padding: 40px 20px;
+        overflow-y: auto;
+    }
+
+    .transaction-dialog {
+        width: min(680px, 100%);
+        margin: 40px auto;
+        background: var(--bg-panel);
+        border: 1px solid var(--border-light);
+        box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+    }
+
+    .transaction-dialog-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 18px 20px;
+        border-bottom: 1px solid var(--border);
+    }
+
+    .transaction-dialog-title {
+        font-family: var(--font-mono);
+        font-size: 13px;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .transaction-close {
+        border: 1px solid var(--border-light);
+        background: transparent;
+        color: var(--text-secondary);
+        width: 32px;
+        height: 30px;
+        cursor: pointer;
+        font-family: var(--font-mono);
+    }
+
+    .transaction-body {
+        padding: 20px;
+    }
+
+    .transaction-mode {
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        margin-bottom: 16px;
+    }
+
+    .transaction-search {
+        display: flex;
+        gap: 10px;
+    }
+
+    .transaction-search input,
+    .transaction-quantity input {
+        flex: 1;
+        min-width: 0;
+        padding: 12px;
+        background: var(--bg-input);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        font-family: var(--font-mono);
+        font-size: 12px;
+        outline: none;
+    }
+
+    .transaction-search input:focus,
+    .transaction-quantity input:focus {
+        border-color: var(--accent);
+    }
+
+    .transaction-search button,
+    .transaction-submit,
+    .transaction-add-item {
+        border: 1px solid var(--accent);
+        background: rgba(0,102,179,0.12);
+        color: var(--text-primary);
+        padding: 11px 14px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        cursor: pointer;
+    }
+
+    .transaction-results {
+        margin-top: 14px;
+        max-height: 270px;
+        overflow-y: auto;
+        border: 1px solid var(--border);
+    }
+
+    .transaction-result {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 12px;
+        text-align: left;
+        padding: 13px 14px;
+        border: 0;
+        border-bottom: 1px solid rgba(255,255,255,0.035);
+        background: transparent;
+        color: var(--text-primary);
+        cursor: pointer;
+    }
+
+    .transaction-result:last-child { border-bottom: 0; }
+    .transaction-result:hover { background: var(--bg-panel-light); }
+
+    .transaction-result-main { font-size: 12px; }
+    .transaction-result-part {
+        margin-top: 3px;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: 10px;
+    }
+
+    .transaction-result-qty {
+        align-self: center;
+        color: var(--accent);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        white-space: nowrap;
+    }
+
+    .transaction-message {
+        margin-top: 14px;
+        color: var(--text-secondary);
+        font-size: 11px;
+        line-height: 1.5;
+    }
+
+    .transaction-selected {
+        margin-top: 16px;
+        padding: 15px;
+        border: 1px solid var(--border);
+        background: var(--bg-input);
+    }
+
+    .transaction-selected-title { font-size: 13px; font-weight: 600; }
+    .transaction-selected-meta {
+        margin-top: 5px;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: 10px;
+    }
+
+    .transaction-quantity {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 10px;
+        align-items: center;
+        margin-top: 14px;
+    }
+
+    .transaction-quantity label {
+        grid-column: 1 / -1;
+        color: var(--text-muted);
+        font-family: var(--font-mono);
+        font-size: 10px;
+    }
+
+    .transaction-submit {
+        width: 100%;
+        margin-top: 14px;
+        background: var(--accent);
+        border-color: var(--accent);
+        font-weight: 700;
+    }
+
+    .transaction-add-item {
+        margin-top: 10px;
+        display: none;
+        width: 100%;
+    }
+
+    .transaction-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    /* ==============================
        RESPONSIVE
     ============================== */
 
@@ -873,7 +1062,7 @@
         </div>
 
 
-        <div class="action-card" id="checkInAction" role="button" tabindex="0" title="Open Inventory">
+        <div class="action-card" id="checkInAction" role="button" tabindex="0" title="Check in inventory">
 
             <span class="action-code">
                 F2
@@ -894,7 +1083,7 @@
         </div>
 
 
-        <div class="action-card" id="checkOutAction" role="button" tabindex="0" title="Open Inventory">
+        <div class="action-card" id="checkOutAction" role="button" tabindex="0" title="Check out inventory">
 
             <span class="action-code">
                 F3
@@ -1305,6 +1494,37 @@
 </main>
 
 
+<!-- INVENTORY TRANSACTION MODAL -->
+<div class="transaction-modal" id="transactionModal" aria-hidden="true">
+    <div class="transaction-dialog" role="dialog" aria-modal="true" aria-labelledby="transactionModalTitle">
+        <div class="transaction-dialog-header">
+            <div>
+                <div class="transaction-dialog-title" id="transactionModalTitle">CHECK IN INVENTORY</div>
+            </div>
+            <button type="button" class="transaction-close" id="closeTransactionModal">X</button>
+        </div>
+        <div class="transaction-body">
+            <div class="transaction-mode" id="transactionModeText">SELECT AN EXISTING INVENTORY ITEM</div>
+            <div class="transaction-search">
+                <input id="transactionSearch" type="search" autocomplete="off" placeholder="Search part number, barcode, SKU, or description...">
+                <button type="button" id="transactionSearchButton">SEARCH</button>
+            </div>
+            <div class="transaction-results" id="transactionResults"></div>
+            <div class="transaction-message" id="transactionMessage">Start typing to find an existing inventory item.</div>
+            <button type="button" class="transaction-add-item" id="transactionAddItem">ITEM NOT FOUND — ADD INVENTORY ITEM</button>
+            <div class="transaction-selected" id="transactionSelected" style="display:none;">
+                <div class="transaction-selected-title" id="transactionSelectedTitle"></div>
+                <div class="transaction-selected-meta" id="transactionSelectedMeta"></div>
+                <div class="transaction-quantity">
+                    <label for="transactionQuantity">QUANTITY</label>
+                    <input id="transactionQuantity" type="number" min="0.01" step="0.01" value="1">
+                </div>
+                <button type="button" class="transaction-submit" id="transactionSubmit">POST TRANSACTION</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- FOOTER -->
 <footer>
 
@@ -1689,28 +1909,217 @@
 <!-- DASHBOARD QUICK ACTIONS -->
 <script>
 (function bindDashboardActions() {
-    const actions = {
-        scanItemAction: "inventory.html",
-        checkInAction: "inventory.html",
-        checkOutAction: "inventory.html",
-        addInventoryAction: "inventory.html"
-    };
+    const transactionModal = document.getElementById("transactionModal");
+    const searchInput = document.getElementById("transactionSearch");
+    const searchButton = document.getElementById("transactionSearchButton");
+    const resultsEl = document.getElementById("transactionResults");
+    const messageEl = document.getElementById("transactionMessage");
+    const addItemButton = document.getElementById("transactionAddItem");
+    const selectedEl = document.getElementById("transactionSelected");
+    const selectedTitleEl = document.getElementById("transactionSelectedTitle");
+    const selectedMetaEl = document.getElementById("transactionSelectedMeta");
+    const quantityInput = document.getElementById("transactionQuantity");
+    const submitButton = document.getElementById("transactionSubmit");
+    const titleEl = document.getElementById("transactionModalTitle");
+    const modeEl = document.getElementById("transactionModeText");
 
-    Object.entries(actions).forEach(([id, destination]) => {
-        const card = document.getElementById(id);
-        if (!card) return;
+    let transactionMode = "check_in";
+    let selectedItem = null;
 
-        const open = () => {
-            window.location.href = destination;
-        };
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
 
-        card.addEventListener("click", open);
-        card.addEventListener("keydown", event => {
-            if (event.key === "Enter" || event.key === " ") {
-                event.preventDefault();
-                open();
-            }
+    function formatQuantity(value) {
+        const number = Number(value || 0);
+        return Number.isInteger(number) ? number.toLocaleString() : number.toLocaleString(undefined, {maximumFractionDigits: 2});
+    }
+
+    function closeModal() {
+        transactionModal.style.display = "none";
+        transactionModal.setAttribute("aria-hidden", "true");
+        selectedItem = null;
+    }
+
+    function openModal(mode) {
+        transactionMode = mode;
+        selectedItem = null;
+        titleEl.textContent = mode === "check_in" ? "CHECK IN INVENTORY" : "CHECK OUT INVENTORY";
+        modeEl.textContent = mode === "check_in"
+            ? "SELECT AN EXISTING INVENTORY ITEM TO RECEIVE STOCK"
+            : "SELECT AN EXISTING INVENTORY ITEM TO REMOVE STOCK";
+        searchInput.value = "";
+        resultsEl.innerHTML = "";
+        messageEl.textContent = "Start typing to find an existing inventory item.";
+        addItemButton.style.display = "none";
+        selectedEl.style.display = "none";
+        transactionModal.style.display = "block";
+        transactionModal.setAttribute("aria-hidden", "false");
+        setTimeout(() => searchInput.focus(), 50);
+    }
+
+    async function searchItems() {
+        const term = searchInput.value.trim();
+        selectedItem = null;
+        selectedEl.style.display = "none";
+        addItemButton.style.display = "none";
+
+        if (!term) {
+            resultsEl.innerHTML = "";
+            messageEl.textContent = "Enter a part number, barcode, SKU, or description.";
+            return;
+        }
+
+        messageEl.textContent = "SEARCHING INVENTORY...";
+        resultsEl.innerHTML = "";
+
+        const escaped = term.replace(/,/g, "");
+        const { data, error } = await supabaseClient
+            .from("inventory_items")
+            .select("id,part_number,barcode,sku,description,quantity_on_hand,active")
+            .eq("active", true)
+            .or(`part_number.ilike.%${escaped}%,barcode.ilike.%${escaped}%,sku.ilike.%${escaped}%,description.ilike.%${escaped}%`)
+            .order("description")
+            .limit(20);
+
+        if (error) {
+            console.error("Transaction inventory search error:", error);
+            messageEl.textContent = "Unable to search inventory. Check the browser console for details.";
+            return;
+        }
+
+        if (!data || data.length === 0) {
+            messageEl.textContent = transactionMode === "check_in"
+                ? "No existing item found. Add it to inventory first, then check it in."
+                : "No existing item found. An item must already exist in inventory before it can be checked out.";
+            addItemButton.style.display = transactionMode === "check_in" ? "block" : "none";
+            return;
+        }
+
+        messageEl.textContent = `${data.length} matching item${data.length === 1 ? "" : "s"} found. Select one.`;
+        resultsEl.innerHTML = data.map(item => `
+            <button type="button" class="transaction-result" data-item-id="${escapeHtml(item.id)}">
+                <span>
+                    <span class="transaction-result-main">${escapeHtml(item.description || "Unnamed Item")}</span>
+                    <span class="transaction-result-part">${escapeHtml(item.part_number || "NO PART NUMBER")} ${item.barcode ? " // " + escapeHtml(item.barcode) : ""}</span>
+                </span>
+                <span class="transaction-result-qty">ON HAND: ${formatQuantity(item.quantity_on_hand)}</span>
+            </button>
+        `).join("");
+
+        resultsEl.querySelectorAll(".transaction-result").forEach(button => {
+            button.addEventListener("click", () => {
+                selectedItem = data.find(item => String(item.id) === String(button.dataset.itemId));
+                if (!selectedItem) return;
+                selectedTitleEl.textContent = selectedItem.description || "Unnamed Item";
+                selectedMetaEl.textContent = `PART: ${selectedItem.part_number || "--"} // CURRENT ON HAND: ${formatQuantity(selectedItem.quantity_on_hand)}`;
+                quantityInput.value = "1";
+                selectedEl.style.display = "block";
+                messageEl.textContent = transactionMode === "check_in" ? "Ready to receive stock." : "Ready to remove stock.";
+                quantityInput.focus();
+            });
         });
+    }
+
+    async function postTransaction() {
+        if (!selectedItem) return;
+
+        const quantity = Number(quantityInput.value);
+        const current = Number(selectedItem.quantity_on_hand || 0);
+
+        if (!Number.isFinite(quantity) || quantity <= 0) {
+            alert("Enter a quantity greater than zero.");
+            quantityInput.focus();
+            return;
+        }
+
+        if (transactionMode === "check_out" && quantity > current) {
+            alert(`Cannot check out ${quantity}. Only ${current} is currently on hand.`);
+            quantityInput.focus();
+            return;
+        }
+
+        const newQuantity = transactionMode === "check_in"
+            ? current + quantity
+            : current - quantity;
+
+        submitButton.disabled = true;
+        submitButton.textContent = "POSTING...";
+
+        const { error: updateError } = await supabaseClient
+            .from("inventory_items")
+            .update({ quantity_on_hand: newQuantity })
+            .eq("id", selectedItem.id);
+
+        if (updateError) {
+            console.error("Inventory quantity update error:", updateError);
+            alert(`Unable to update inventory quantity.\n\n${updateError.message}`);
+            submitButton.disabled = false;
+            submitButton.textContent = "POST TRANSACTION";
+            return;
+        }
+
+        const { error: transactionError } = await supabaseClient
+            .from("inventory_transactions")
+            .insert({
+                inventory_item_id: selectedItem.id,
+                transaction_type: transactionMode,
+                quantity: quantity
+            });
+
+        if (transactionError) {
+            console.error("Inventory transaction insert error:", transactionError);
+            alert(`Inventory quantity was updated, but the transaction record could not be created.\n\n${transactionError.message}`);
+            submitButton.disabled = false;
+            submitButton.textContent = "POST TRANSACTION";
+            return;
+        }
+
+        closeModal();
+        alert(`${transactionMode === "check_in" ? "CHECK IN" : "CHECK OUT"} COMPLETE.\n\n${selectedItem.part_number || selectedItem.description}\nNEW ON HAND: ${formatQuantity(newQuantity)}`);
+        window.location.reload();
+    }
+
+    document.getElementById("scanItemAction")?.addEventListener("click", () => {
+        window.location.href = "inventory.html";
+    });
+
+    document.getElementById("addInventoryAction")?.addEventListener("click", () => {
+        window.location.href = "inventory.html?action=add";
+    });
+
+    document.getElementById("checkInAction")?.addEventListener("click", () => openModal("check_in"));
+    document.getElementById("checkOutAction")?.addEventListener("click", () => openModal("check_out"));
+
+    ["checkInAction", "checkOutAction", "scanItemAction", "addInventoryAction"].forEach(id => {
+        document.getElementById(id)?.addEventListener("keydown", event => {
+            if (event.key !== "Enter" && event.key !== " ") return;
+            event.preventDefault();
+            document.getElementById(id).click();
+        });
+    });
+
+    searchButton.addEventListener("click", searchItems);
+    searchInput.addEventListener("input", () => {
+        clearTimeout(searchInput._searchTimer);
+        searchInput._searchTimer = setTimeout(searchItems, 250);
+    });
+    searchInput.addEventListener("keydown", event => {
+        if (event.key === "Enter") searchItems();
+    });
+    submitButton.addEventListener("click", postTransaction);
+    document.getElementById("closeTransactionModal").addEventListener("click", closeModal);
+    transactionModal.addEventListener("click", event => {
+        if (event.target === transactionModal) closeModal();
+    });
+
+    addItemButton.addEventListener("click", () => {
+        window.location.href = "inventory.html?action=add";
     });
 })();
 </script>

@@ -737,7 +737,7 @@
         <a href="index.html" class="nav-link">DASHBOARD</a>
         <a href="inventory.html" class="nav-link active">INVENTORY</a>
         <a href="#" class="nav-link">TRANSACTIONS</a>
-        <a href="#" class="nav-link">VENDORS</a>
+        <a href="vendors.html" class="nav-link">VENDORS</a>
         <a href="#" class="nav-link">REPORTS</a>
     </div>
 
@@ -2235,6 +2235,11 @@
 
         await loadReferenceData();
         await loadInventory();
+
+        if (new URLSearchParams(window.location.search).get("action") === "add") {
+            openModal();
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
 
     } catch (error) {
 

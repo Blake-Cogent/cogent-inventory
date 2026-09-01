@@ -54,10 +54,21 @@ async function loadUser(){
       document.getElementById('currentUserRole').textContent='PLEASE SIGN IN';
       return;
     }
-    const name=user.user_metadata?.full_name||user.email||'SYSTEM USER';
-    document.getElementById('currentUserName').textContent=name.toUpperCase();
-    document.getElementById('currentUserRole').textContent='AUTHENTICATED USER';
-    document.getElementById('currentUserAvatar').textContent=name.slice(0,2).toUpperCase();
+    let displayName=user.user_metadata?.full_name||'';
+    let role='ADMIN';
+    try{
+      const {data:profile}=await client.from('profiles').select('first_name,last_name,display_name,role').eq('id',user.id).single();
+      if(profile){
+        displayName=profile.display_name||[profile.first_name,profile.last_name].filter(Boolean).join(' ')||displayName;
+        role=profile.role||role;
+      }
+    }catch(profileError){
+      console.warn('Profile load:',profileError);
+    }
+    displayName=displayName||user.email||'SYSTEM USER';
+    document.getElementById('currentUserName').textContent=displayName.toUpperCase();
+    document.getElementById('currentUserRole').textContent=String(role).toUpperCase();
+    document.getElementById('currentUserAvatar').textContent=displayName.slice(0,2).toUpperCase();
   }catch(e){
     console.error('User load:',e);
     document.getElementById('currentUserName').textContent='SYSTEM USER';

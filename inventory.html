@@ -1912,10 +1912,15 @@
             }).join("");
 
         document
-            .querySelectorAll(".view-item-button")
+            .querySelectorAll(".actions-button")
             .forEach(button => {
 
-                button.addEventListener("click", () => {
+                button.addEventListener("click", event => {
+                    event.stopPropagation();
+
+                    document
+                        .querySelectorAll(".inventory-actions-menu")
+                        .forEach(menu => menu.remove());
 
                     const item =
                         inventoryItems.find(
@@ -1923,10 +1928,33 @@
                                 record.id === button.dataset.itemId
                         );
 
-                    if (item) {
-                        openItemDetails(item);
-                    }
+                    if (!item) return;
 
+                    const menu = document.createElement("div");
+                    menu.className = "inventory-actions-menu";
+                    menu.innerHTML = `
+                        <button type="button" data-action="view">VIEW DETAILS</button>
+                        <button type="button" data-action="edit">EDIT ITEM</button>
+                        <button type="button" data-action="delete" class="danger-action">DELETE ITEM</button>
+                    `;
+
+                    button.parentElement.style.position = "relative";
+                    button.parentElement.appendChild(menu);
+
+                    menu.querySelector('[data-action="view"]').addEventListener("click", () => {
+                        menu.remove();
+                        openItemDetails(item);
+                    });
+
+                    menu.querySelector('[data-action="edit"]').addEventListener("click", () => {
+                        menu.remove();
+                        openEditModal(item);
+                    });
+
+                    menu.querySelector('[data-action="delete"]').addEventListener("click", async () => {
+                        menu.remove();
+                        await deleteItem(item);
+                    });
                 });
 
             });
@@ -1950,8 +1978,28 @@
         );
     }
 
+    let editingItemId = null;
+
+    function setModalMode(editing) {
+        const title = modal.querySelector(".panel-title");
+        const subtitle = title?.nextElementSibling;
+        const saveButton = document.getElementById("saveInventoryButton");
+
+        if (editing) {
+            title.textContent = "Edit Inventory Item";
+            if (subtitle) subtitle.textContent = "UPDATE EXISTING INVENTORY RECORD";
+            saveButton.textContent = "UPDATE INVENTORY ITEM";
+        } else {
+            title.textContent = "Add Inventory Item";
+            if (subtitle) subtitle.textContent = "CREATE NEW INVENTORY RECORD";
+            saveButton.textContent = "SAVE INVENTORY ITEM";
+        }
+    }
+
     function openModal() {
 
+        editingItemId = null;
+        setModalMode(false);
         form.reset();
 
         form.querySelector('[name="unit_of_measure"]').value =
@@ -1972,6 +2020,69 @@
         setTimeout(() => {
             form.querySelector('[name="part_number"]').focus();
         }, 50);
+    }
+
+    function openEditModal(item) {
+        editingItemId = item.id;
+        setModalMode(true);
+        form.reset();
+
+        const fields = [
+            "part_number",
+            "barcode",
+            "sku",
+            "description",
+            "category_id",
+            "subcategory_id",
+            "manufacturer",
+            "manufacturer_part_number",
+            "model_number",
+            "vendor_id",
+            "vendor_part_number",
+            "unit_of_measure",
+            "quantity_on_hand",
+            "minimum_quantity",
+            "reorder_quantity",
+            "location_id",
+            "unit_cost",
+            "notes"
+        ];
+
+        form.querySelector('[name="category_id"]').value = item.category_id || "";
+        updateSubcategorySelect();
+
+        fields.forEach(name => {
+            const field = form.querySelector(`[name="${name}"]`);
+            if (field) field.value = item[name] ?? "";
+        });
+
+        formMessage.textContent = "EDITING EXISTING INVENTORY RECORD.";
+        modal.style.display = "block";
+
+        setTimeout(() => {
+            form.querySelector('[name="part_number"]').focus();
+        }, 50);
+    }
+
+    async function deleteItem(item) {
+        const confirmed = confirm(
+            `Delete inventory item "${item.part_number} - ${item.description}"?\n\nThis will permanently remove the inventory record.`
+        );
+
+        if (!confirmed) return;
+
+        const { error } = await supabaseClient
+            .from("inventory_items")
+            .delete()
+            .eq("id", item.id);
+
+        if (error) {
+            console.error("Inventory delete error:", error);
+            alert(`Unable to delete item.\n\n${error.message}`);
+            return;
+        }
+
+        await loadInventory();
     }
 
     function closeModal() {
@@ -2023,10 +2134,18 @@
         button.textContent = "SAVING...";
         formMessage.textContent = "WRITING INVENTORY RECORD...";
 
-        const { error } =
-            await supabaseClient
+        let error;
+
+        if (editingItemId) {
+            ({ error } = await supabaseClient
                 .from("inventory_items")
-                .insert(payload);
+                .update(payload)
+                .eq("id", editingItemId));
+        } else {
+            ({ error } = await supabaseClient
+                .from("inventory_items")
+                .insert(payload));
+        }
 
         if (error) {
 
@@ -2042,7 +2161,9 @@
         }
 
         formMessage.textContent =
-            "INVENTORY ITEM CREATED.";
+            editingItemId
+                ? "INVENTORY ITEM UPDATED."
+                : "INVENTORY ITEM CREATED.";
 
         await loadInventory();
 
@@ -2052,6 +2173,8 @@
 
         button.disabled = false;
         button.textContent = "SAVE INVENTORY ITEM";
+        editingItemId = null;
+        setModalMode(false);
     }
 
     /* Events */
@@ -2100,6 +2223,12 @@
     });
 
     form.addEventListener("submit", saveItem);
+
+    document.addEventListener("click", () => {
+        document
+            .querySelectorAll(".inventory-actions-menu")
+            .forEach(menu => menu.remove());
+    });
 
     /* Initial load */
     try {
@@ -2284,30 +2413,57 @@
 
 }
 
-.view-item-button {
-
+.actions-button {
     border:1px solid var(--border-light);
-
     background:transparent;
-
     color:var(--accent);
-
     padding:6px 9px;
-
     cursor:pointer;
-
     font-family:var(--font-mono);
-
     font-size:9px;
-
 }
 
-.view-item-button:hover {
-
+.actions-button:hover {
     background:rgba(0,102,179,0.10);
-
     border-color:var(--accent);
+}
 
+.inventory-actions-menu {
+    position:absolute;
+    right:0;
+    top:calc(100% + 5px);
+    z-index:50;
+    min-width:155px;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    box-shadow:0 12px 30px rgba(0,0,0,0.35);
+}
+
+.inventory-actions-menu button {
+    display:block;
+    width:100%;
+    padding:9px 11px;
+    border:0;
+    border-bottom:1px solid rgba(255,255,255,0.04);
+    background:transparent;
+    color:var(--text-secondary);
+    text-align:left;
+    cursor:pointer;
+    font-family:var(--font-mono);
+    font-size:9px;
+}
+
+.inventory-actions-menu button:hover {
+    background:rgba(0,102,179,0.10);
+    color:var(--text-primary);
+}
+
+.inventory-actions-menu .danger-action {
+    color:var(--danger);
+}
+
+.inventory-actions-menu .danger-action:hover {
+    background:rgba(224,82,82,0.08);
 }
 
 @media (max-width:1000px) {

@@ -1,65 +1,57 @@
 <!DOCTYPE html>
 
 <html lang="en">
-
 <head>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="js/supabase.js"></script>
-```
-<meta charset="UTF-8">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
->
+    <!-- SUPABASE -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/supabase.js"></script>
 
-<title>Cogent Hex | Inventory</title>
+
+<title>Cogent Hex | Inventory Control</title>
 
 <meta
     name="description"
-    content="Cogent Hex Industrial Inventory Control System"
+    content="Cogent Hex Industrial Inventory Management System"
 >
 
 <style>
-
     :root {
+        --bg-main: #0b1015;
+        --bg-panel: #111820;
+        --bg-panel-light: #18222c;
+        --bg-input: #080d12;
 
-        --bg-main: #101315;
-        --bg-panel: #181c20;
-        --bg-panel-light: #20252a;
-        --bg-input: #0b0e10;
+        --border: #263541;
+        --border-light: #3b4c59;
 
-        --border: #30363b;
-        --border-light: #424a51;
+        --text-primary: #edf3f7;
+        --text-secondary: #aab7c1;
+        --text-muted: #6f7d87;
 
-        --text-primary: #e8ecef;
-        --text-secondary: #9ba4ab;
-        --text-muted: #687178;
-
-        --accent: #f2a900;
+        /* COGENT HEX BLUE */
+        --accent: #0066b3;
+        --accent-dark: #004b82;
 
         --success: #4caf50;
-        --danger: #d9534f;
-        --warning: #f2a900;
+        --danger: #e05252;
+
+        /* WARNING REMAINS AMBER */
+        --warning: #e0a52b;
 
         --font-ui: "Segoe UI", Arial, sans-serif;
         --font-mono: "Consolas", "Courier New", monospace;
-
     }
-
 
     * {
-
         box-sizing: border-box;
-
         margin: 0;
         padding: 0;
-
     }
 
-
     body {
-
         min-height: 100vh;
 
         background:
@@ -77,77 +69,66 @@
         background-size: 32px 32px;
 
         color: var(--text-primary);
-
         font-family: var(--font-ui);
-
     }
 
-
-    /* =====================================
-       TOP BAR
-    ===================================== */
+    /* ==============================
+       TOP STATUS BAR
+    ============================== */
 
     .top-bar {
-
-        height: 44px;
+        height: 46px;
 
         display: flex;
-
         align-items: center;
-
         justify-content: space-between;
 
         padding: 0 24px;
 
-        background: #0a0d0f;
-
+        background: #070b0f;
         border-bottom: 1px solid var(--border);
 
-        font-family: var(--font-mono);
-
-        font-size: 10px;
-
-        color: var(--text-muted);
-
+        font-size: 13px;
     }
-
 
     .system-status {
-
         display: flex;
-
         align-items: center;
+        gap: 10px;
 
-        gap: 9px;
-
+        color: var(--text-secondary);
     }
 
-
     .status-light {
-
-        width: 8px;
-        height: 8px;
+        width: 9px;
+        height: 9px;
 
         border-radius: 50%;
 
         background: var(--success);
 
         box-shadow:
-            0 0 7px rgba(76,175,80,0.65);
-
+            0 0 8px rgba(76,175,80,0.6);
     }
 
+    .system-name {
+        font-family: var(--font-mono);
+        letter-spacing: 0.5px;
+    }
 
-    /* =====================================
-       NAVBAR
-    ===================================== */
+    .clock {
+        font-family: var(--font-mono);
+        color: var(--text-muted);
+    }
+
+    /* ==============================
+       MAIN NAVIGATION
+    ============================== */
 
     .navbar {
-
-        height: 72px;
+        height: 74px;
 
         display: flex;
-
         align-items: center;
 
         padding: 0 32px;
@@ -155,2651 +136,2240 @@
         background: var(--bg-panel);
 
         border-bottom: 1px solid var(--border);
-
     }
-
 
     .brand {
-
         display: flex;
-
         align-items: center;
+        gap: 14px;
 
-        gap: 13px;
-
-        min-width: 285px;
-
+        min-width: 300px;
     }
 
-
     .brand-mark {
-
-        width: 40px;
-        height: 40px;
+        width: 42px;
+        height: 42px;
 
         display: flex;
-
         align-items: center;
         justify-content: center;
 
         background: var(--accent);
 
-        color: #111;
+        /* White makes the CH mark readable on blue */
+        color: #ffffff;
 
-        font-size: 20px;
-
+        font-size: 22px;
         font-weight: 900;
 
-        clip-path:
-            polygon(
-                0 0,
-                100% 0,
-                100% 78%,
-                78% 100%,
-                0 100%
-            );
+        clip-path: polygon(
+            0 0,
+            100% 0,
+            100% 78%,
+            78% 100%,
+            0 100%
+        );
 
+        box-shadow:
+            0 0 14px rgba(0,102,179,0.22);
     }
 
+    .brand-text {
+        display: flex;
+        flex-direction: column;
+    }
 
     .brand-name {
-
-        font-size: 18px;
-
+        font-size: 19px;
         font-weight: 700;
-
         letter-spacing: 1.5px;
-
     }
-
 
     .brand-system {
-
         margin-top: 2px;
 
-        color: var(--accent);
-
         font-family: var(--font-mono);
-
-        font-size: 9px;
-
+        font-size: 10px;
         letter-spacing: 1.5px;
 
+        color: var(--accent);
     }
-
 
     .nav-links {
-
         display: flex;
-
-        gap: 4px;
-
+        align-items: center;
+        gap: 5px;
     }
 
-
     .nav-link {
-
-        padding: 10px 13px;
+        padding: 10px 14px;
 
         border: 1px solid transparent;
 
         color: var(--text-secondary);
 
-        font-size: 12px;
-
+        font-size: 13px;
         text-decoration: none;
 
         transition: 0.15s ease;
-
     }
 
-
     .nav-link:hover {
-
         color: var(--text-primary);
 
         background: var(--bg-panel-light);
 
         border-color: var(--border);
-
     }
-
 
     .nav-link.active {
-
         color: var(--accent);
 
-        background:
-            rgba(242,169,0,0.07);
+        background: rgba(0,102,179,0.10);
 
-        border-color:
-            rgba(242,169,0,0.25);
+        border-color: rgba(22,135,212,0.35);
 
+        box-shadow:
+            inset 0 -1px 0 var(--accent);
     }
 
-
     .user-area {
-
         margin-left: auto;
 
         display: flex;
-
         align-items: center;
-
-        gap: 10px;
-
+        gap: 12px;
     }
-
 
     .user-info {
-
         text-align: right;
-
     }
-
 
     .user-name {
-
-        font-size: 12px;
-
+        font-size: 13px;
         font-weight: 600;
-
     }
-
 
     .user-role {
-
         margin-top: 2px;
 
-        color: var(--text-muted);
-
         font-family: var(--font-mono);
+        font-size: 10px;
 
-        font-size: 9px;
-
+        color: var(--text-muted);
     }
 
-
     .user-avatar {
-
-        width: 35px;
-        height: 35px;
+        width: 36px;
+        height: 36px;
 
         display: flex;
-
         align-items: center;
         justify-content: center;
-
-        background: var(--bg-panel-light);
 
         border: 1px solid var(--border-light);
 
-        color: var(--accent);
+        background: rgba(0,102,179,0.10);
 
         font-family: var(--font-mono);
-
-        font-size: 11px;
-
-    }
-
-
-    /* =====================================
-       MAIN
-    ===================================== */
-
-    main {
-
-        max-width: 1700px;
-
-        margin: auto;
-
-        padding: 28px 32px 50px;
-
-    }
-
-
-    .page-header {
-
-        display: flex;
-
-        justify-content: space-between;
-
-        align-items: flex-end;
-
-        margin-bottom: 22px;
-
-    }
-
-
-    .page-title {
-
-        font-size: 26px;
-
-        font-weight: 600;
-
-    }
-
-
-    .page-subtitle {
-
-        margin-top: 6px;
-
-        color: var(--text-secondary);
-
         font-size: 12px;
 
+        color: var(--accent);
     }
 
+    /* ==============================
+       MAIN CONTENT
+    ============================== */
+
+    main {
+        max-width: 1600px;
+        margin: 0 auto;
+
+        padding: 30px 32px 60px;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+
+        margin-bottom: 26px;
+    }
+
+    .page-title {
+        font-size: 27px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+    }
+
+    .page-subtitle {
+        margin-top: 7px;
+
+        color: var(--text-secondary);
+        font-size: 13px;
+    }
 
     .system-id {
-
-        color: var(--text-muted);
-
         font-family: var(--font-mono);
-
-        font-size: 9px;
-
-    }
-
-
-    /* =====================================
-       TOOLBAR
-    ===================================== */
-
-    .toolbar {
-
-        display: flex;
-
-        gap: 10px;
-
-        margin-bottom: 18px;
-
-    }
-
-
-    .search-box {
-
-        flex: 1;
-
-        position: relative;
-
-    }
-
-
-    .search-box input {
-
-        width: 100%;
-
-        height: 44px;
-
-        padding: 0 15px 0 43px;
-
-        background: var(--bg-input);
-
-        border: 1px solid var(--border);
-
-        outline: none;
-
-        color: var(--text-primary);
-
-        font-family: var(--font-mono);
-
         font-size: 11px;
 
-    }
-
-
-    .search-box input:focus {
-
-        border-color: var(--accent);
-
-    }
-
-
-    .search-icon {
-
-        position: absolute;
-
-        left: 15px;
-
-        top: 13px;
-
         color: var(--text-muted);
-
-        font-family: var(--font-mono);
-
     }
 
+    /* ==============================
+       QUICK ACTIONS
+    ============================== */
 
-    .toolbar-button {
-
-        height: 44px;
-
-        padding: 0 18px;
-
-        background: var(--bg-panel);
-
-        border: 1px solid var(--border);
-
-        color: var(--text-secondary);
-
-        font-family: var(--font-mono);
-
-        font-size: 10px;
-
-        cursor: pointer;
-
-    }
-
-
-    .toolbar-button:hover {
-
-        color: var(--text-primary);
-
-        border-color: var(--border-light);
-
-    }
-
-
-    .toolbar-button.primary {
-
-        background: var(--accent);
-
-        border-color: var(--accent);
-
-        color: #111;
-
-        font-weight: 700;
-
-    }
-
-
-    /* =====================================
-       CONTENT GRID
-    ===================================== */
-
-    .inventory-layout {
-
+    .quick-actions {
         display: grid;
 
-        grid-template-columns: 260px 1fr;
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
 
-        gap: 18px;
+        gap: 14px;
 
+        margin-bottom: 24px;
     }
 
+    .action-card {
+        position: relative;
 
-    /* =====================================
-       CATEGORY PANEL
-    ===================================== */
+        min-height: 125px;
 
-    .category-panel {
+        padding: 22px;
 
         background: var(--bg-panel);
 
         border: 1px solid var(--border);
 
-        min-height: 650px;
-
-    }
-
-
-    .panel-header {
-
-        height: 48px;
-
-        display: flex;
-
-        align-items: center;
-
-        justify-content: space-between;
-
-        padding: 0 15px;
-
-        border-bottom: 1px solid var(--border);
-
-    }
-
-
-    .panel-title {
-
-        font-family: var(--font-mono);
-
-        font-size: 10px;
-
-        letter-spacing: 1px;
-
-        text-transform: uppercase;
-
-    }
-
-
-    .panel-count {
-
-        color: var(--text-muted);
-
-        font-family: var(--font-mono);
-
-        font-size: 9px;
-
-    }
-
-
-    .category-list {
-
-        padding: 8px;
-
-    }
-
-
-    .category {
-
-        display: flex;
-
-        align-items: center;
-
-        gap: 9px;
-
-        padding: 9px 10px;
-
-        color: var(--text-secondary);
-
-        font-size: 11px;
-
         cursor: pointer;
 
-        border: 1px solid transparent;
-
+        transition:
+            transform 0.15s ease,
+            border-color 0.15s ease,
+            background 0.15s ease;
     }
 
-
-    .category:hover {
+    .action-card:hover {
+        transform: translateY(-2px);
 
         background: var(--bg-panel-light);
 
-        color: var(--text-primary);
-
+        border-color: var(--border-light);
     }
 
-
-    .category.active {
-
-        color: var(--accent);
+    .action-card.primary {
+        border-color: rgba(22,135,212,0.45);
 
         background:
-            rgba(242,169,0,0.07);
+            linear-gradient(
+                135deg,
+                rgba(0,102,179,0.12),
+                transparent
+            ),
+            var(--bg-panel);
 
-        border-color:
-            rgba(242,169,0,0.22);
-
+        box-shadow:
+            inset 3px 0 0 var(--accent);
     }
 
-
-    .category-icon {
-
-        width: 17px;
-
-        color: var(--text-muted);
-
+    .action-icon {
         font-family: var(--font-mono);
-
-    }
-
-
-    .category.active .category-icon {
+        font-size: 24px;
 
         color: var(--accent);
 
+        margin-bottom: 14px;
     }
 
+    .action-title {
+        font-size: 15px;
+        font-weight: 600;
+    }
 
-    .category-count {
-
-        margin-left: auto;
+    .action-description {
+        margin-top: 5px;
 
         color: var(--text-muted);
+        font-size: 11px;
+    }
+
+    .action-code {
+        position: absolute;
+
+        top: 12px;
+        right: 14px;
 
         font-family: var(--font-mono);
-
         font-size: 9px;
 
+        color: var(--text-muted);
     }
 
+    /* ==============================
+       STATISTICS
+    ============================== */
 
-    .category-indent {
+    .stats-grid {
+        display: grid;
 
-        margin-left: 25px;
+        grid-template-columns:
+            repeat(4, minmax(0, 1fr));
 
+        gap: 14px;
+
+        margin-bottom: 24px;
     }
 
-
-    /* =====================================
-       INVENTORY TABLE
-    ===================================== */
-
-    .inventory-panel {
+    .stat-card {
+        padding: 20px;
 
         background: var(--bg-panel);
 
         border: 1px solid var(--border);
-
-        overflow: hidden;
-
     }
 
-
-    .table-container {
-
-        overflow-x: auto;
-
-    }
-
-
-    table {
-
-        width: 100%;
-
-        border-collapse: collapse;
-
-        min-width: 850px;
-
-    }
-
-
-    thead {
-
-        background: #13171a;
-
-    }
-
-
-    th {
-
-        padding: 12px 14px;
-
-        text-align: left;
-
+    .stat-label {
         color: var(--text-muted);
 
         font-family: var(--font-mono);
-
-        font-size: 9px;
-
-        letter-spacing: 0.7px;
-
-        font-weight: 500;
-
+        font-size: 10px;
+        letter-spacing: 1px;
         text-transform: uppercase;
-
-        border-bottom: 1px solid var(--border);
-
     }
 
+    .stat-value {
+        margin-top: 9px;
 
-    td {
+        font-family: var(--font-mono);
+        font-size: 29px;
+        font-weight: 600;
+    }
 
-        padding: 14px;
+    .stat-meta {
+        margin-top: 7px;
+
+        color: var(--text-secondary);
+        font-size: 11px;
+    }
+
+    .stat-warning .stat-value {
+        color: var(--warning);
+    }
+
+    .stat-danger .stat-value {
+        color: var(--danger);
+    }
+
+    .stat-success .stat-value {
+        color: var(--success);
+    }
+
+    /* ==============================
+       DASHBOARD GRID
+    ============================== */
+
+    .dashboard-grid {
+        display: grid;
+
+        grid-template-columns:
+            1.4fr 1fr;
+
+        gap: 20px;
+    }
+
+    .panel {
+        background: var(--bg-panel);
+        border: 1px solid var(--border);
+    }
+
+    .panel-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 16px 18px;
+
+        border-bottom: 1px solid var(--border);
+    }
+
+    .panel-title {
+        font-family: var(--font-mono);
+        font-size: 12px;
+
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .panel-link {
+        color: var(--accent);
+
+        font-family: var(--font-mono);
+        font-size: 10px;
+
+        text-decoration: none;
+    }
+
+    .panel-link:hover {
+        color: var(--accent-light, #1687d4);
+    }
+
+    /* ==============================
+       TRANSACTIONS
+    ============================== */
+
+    .transaction {
+        display: grid;
+
+        grid-template-columns:
+            72px 1fr 100px;
+
+        align-items: center;
+
+        padding: 14px 18px;
 
         border-bottom:
             1px solid rgba(255,255,255,0.035);
+    }
 
+    .transaction:last-child {
+        border-bottom: none;
+    }
+
+    .transaction-time {
+        font-family: var(--font-mono);
+        font-size: 10px;
+
+        color: var(--text-muted);
+    }
+
+    .transaction-item {
+        font-size: 12px;
+    }
+
+    .transaction-part {
+        margin-top: 3px;
+
+        font-family: var(--font-mono);
+        font-size: 10px;
+
+        color: var(--text-muted);
+    }
+
+    .transaction-type {
+        text-align: right;
+
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+    }
+
+    .check-in {
+        color: var(--success);
+    }
+
+    .check-out {
+        color: var(--accent);
+    }
+
+    /* ==============================
+       LOW STOCK
+    ============================== */
+
+    .stock-row {
+        display: grid;
+
+        grid-template-columns:
+            1fr 90px 70px;
+
+        align-items: center;
+
+        padding: 14px 18px;
+
+        border-bottom:
+            1px solid rgba(255,255,255,0.035);
+    }
+
+    .stock-row:last-child {
+        border-bottom: none;
+    }
+
+    .stock-name {
+        font-size: 12px;
+    }
+
+    .stock-part {
+        margin-top: 3px;
+
+        font-family: var(--font-mono);
+        font-size: 9px;
+
+        color: var(--text-muted);
+    }
+
+    .stock-location {
+        font-family: var(--font-mono);
+        font-size: 9px;
+
+        color: var(--text-secondary);
+    }
+
+    .stock-quantity {
+        text-align: right;
+
+        font-family: var(--font-mono);
         font-size: 11px;
 
-        vertical-align: middle;
-
-    }
-
-
-    tbody tr {
-
-        cursor: pointer;
-
-        transition: background 0.12s ease;
-
-    }
-
-
-    tbody tr:hover {
-
-        background:
-            rgba(255,255,255,0.025);
-
-    }
-
-
-    .item-name {
-
-        font-weight: 600;
-
-    }
-
-
-    .part-number {
-
-        margin-top: 4px;
-
-        color: var(--text-muted);
-
-        font-family: var(--font-mono);
-
-        font-size: 9px;
-
-    }
-
-
-    .manufacturer {
-
-        color: var(--text-secondary);
-
-    }
-
-
-    .category-label {
-
-        color: var(--text-secondary);
-
-        font-size: 10px;
-
-    }
-
-
-    .vendor {
-
-        color: var(--text-secondary);
-
-        font-size: 10px;
-
-    }
-
-
-    .location {
-
-        font-family: var(--font-mono);
-
-        font-size: 9px;
-
-        color: var(--text-secondary);
-
-    }
-
-
-    .quantity {
-
-        font-family: var(--font-mono);
-
-        font-size: 12px;
-
-        font-weight: 600;
-
-    }
-
-
-    .quantity.low {
-
         color: var(--warning);
-
     }
 
+    /* ==============================
+       FOOTER
+    ============================== */
 
-    .quantity.out {
+    footer {
+        max-width: 1600px;
 
-        color: var(--danger);
+        margin: 0 auto;
 
-    }
-
-
-    .quantity.good {
-
-        color: var(--success);
-
-    }
-
-
-    .stock-bar {
-
-        width: 75px;
-
-        height: 4px;
-
-        margin-top: 6px;
-
-        background: #2a3035;
-
-    }
-
-
-    .stock-fill {
-
-        height: 100%;
-
-        background: var(--success);
-
-    }
-
-
-    .stock-fill.low {
-
-        background: var(--warning);
-
-    }
-
-
-    .stock-fill.out {
-
-        background: var(--danger);
-
-    }
-
-
-    .status {
-
-        display: inline-flex;
-
-        align-items: center;
-
-        gap: 6px;
-
-        padding: 5px 7px;
-
-        border: 1px solid;
-
-        font-family: var(--font-mono);
-
-        font-size: 8px;
-
-        letter-spacing: 0.5px;
-
-    }
-
-
-    .status.in-stock {
-
-        color: var(--success);
-
-        border-color:
-            rgba(76,175,80,0.25);
-
-        background:
-            rgba(76,175,80,0.05);
-
-    }
-
-
-    .status.low-stock {
-
-        color: var(--warning);
-
-        border-color:
-            rgba(242,169,0,0.25);
-
-        background:
-            rgba(242,169,0,0.05);
-
-    }
-
-
-    .status.out-stock {
-
-        color: var(--danger);
-
-        border-color:
-            rgba(217,83,79,0.25);
-
-        background:
-            rgba(217,83,79,0.05);
-
-    }
-
-
-    .status-dot {
-
-        width: 5px;
-        height: 5px;
-
-        border-radius: 50%;
-
-        background: currentColor;
-
-    }
-
-
-    .action-menu {
-
-        color: var(--text-muted);
-
-        font-family: var(--font-mono);
-
-        font-size: 15px;
-
-    }
-
-
-    /* =====================================
-       TABLE FOOTER
-    ===================================== */
-
-    .table-footer {
+        padding: 18px 32px 30px;
 
         display: flex;
-
         justify-content: space-between;
 
-        align-items: center;
-
-        padding: 13px 15px;
-
         color: var(--text-muted);
 
-        font-family: var(--font-mono);
-
-        font-size: 9px;
-
-    }
-
-
-    .pagination {
-
-        display: flex;
-
-        gap: 5px;
-
-    }
-
-
-    .page-button {
-
-        width: 27px;
-        height: 27px;
-
-        display: flex;
-
-        align-items: center;
-        justify-content: center;
-
-        background: var(--bg-input);
-
-        border: 1px solid var(--border);
-
-        color: var(--text-secondary);
+        font-size: 10px;
 
         font-family: var(--font-mono);
-
-        font-size: 9px;
-
-        cursor: pointer;
-
     }
 
-
-    .page-button.active {
-
-        background: var(--accent);
-
-        border-color: var(--accent);
-
-        color: #111;
-
-    }
-
-
-    /* =====================================
+    /* ==============================
        RESPONSIVE
-    ===================================== */
+    ============================== */
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1000px) {
 
         .nav-links {
-
             display: none;
-
         }
 
-        .inventory-layout {
-
-            grid-template-columns: 210px 1fr;
-
+        .brand {
+            min-width: auto;
         }
 
-    }
+        .quick-actions,
+        .stats-grid {
+            grid-template-columns:
+                repeat(2, 1fr);
+        }
 
-
-    @media (max-width: 800px) {
-
-        .inventory-layout {
-
+        .dashboard-grid {
             grid-template-columns: 1fr;
-
         }
-
-        .category-panel {
-
-            min-height: auto;
-
-        }
-
-        .category-list {
-
-            display: grid;
-
-            grid-template-columns: repeat(2, 1fr);
-
-        }
-
     }
-
 
     @media (max-width: 600px) {
 
         .navbar {
-
             padding: 0 16px;
-
-        }
-
-        .brand {
-
-            min-width: auto;
-
-        }
-
-        .user-info {
-
-            display: none;
-
         }
 
         main {
-
             padding: 22px 16px 40px;
-
         }
 
-        .toolbar {
-
-            flex-wrap: wrap;
-
+        .user-info {
+            display: none;
         }
 
-        .search-box {
-
-            flex-basis: 100%;
-
+        .quick-actions,
+        .stats-grid {
+            grid-template-columns: 1fr;
         }
 
+        .page-header {
+            align-items: flex-start;
+
+            flex-direction: column;
+
+            gap: 10px;
+        }
+
+        footer {
+            padding: 18px 16px;
+        }
     }
 
 </style>
-```
+
 
 </head>
 
 <body>
 
-```
-<!-- =====================================
-     SYSTEM BAR
-===================================== -->
-
+<!-- SYSTEM STATUS -->
 <div class="top-bar">
-
     <div class="system-status">
-
         <span class="status-light"></span>
+        <span class="system-name">INVENTORY CONTROL SYSTEM</span>
+        <span>/</span>
+        <span>ONLINE</span>
+    </div>
 
-        <span>
-            COGENT HEX // INVENTORY CONTROL
-        </span>
+    <div class="clock" id="systemClock">00:00:00</div>
+</div>
 
-        <span>
-            /
-        </span>
 
-        <span>
-            ONLINE
-        </span>
+<!-- NAVIGATION -->
+<nav class="navbar">
+
+    <div class="brand">
+        <div class="brand-mark">CH</div>
+
+        <div class="brand-text">
+            <div class="brand-name">COGENT HEX</div>
+            <div class="brand-system">INDUSTRIAL INVENTORY</div>
+        </div>
+    </div>
+
+    <div class="nav-links">
+        <a href="index.html" class="nav-link">DASHBOARD</a>
+        <a href="inventory.html" class="nav-link active">INVENTORY</a>
+        <a href="#" class="nav-link">TRANSACTIONS</a>
+        <a href="#" class="nav-link">VENDORS</a>
+        <a href="#" class="nav-link">REPORTS</a>
+    </div>
+
+    <div class="user-area">
+
+        <div class="user-info">
+            <div class="user-name" id="currentUserName">LOADING USER...</div>
+            <div class="user-role" id="currentUserRole">AUTHENTICATING...</div>
+        </div>
+
+        <div class="user-avatar" id="currentUserAvatar">--</div>
+
+        <button
+            type="button"
+            id="logoutButton"
+            style="
+                border:1px solid var(--border-light);
+                background:transparent;
+                color:var(--text-secondary);
+                padding:8px 10px;
+                font-family:var(--font-mono);
+                font-size:10px;
+                cursor:pointer;
+            "
+        >
+            SIGN OUT
+        </button>
+    </div>
+</nav>
+
+
+<main>
+
+    <!-- PAGE HEADER -->
+    <div class="page-header">
+
+        <div>
+            <h1 class="page-title">Inventory</h1>
+
+            <p class="page-subtitle">
+                Inventory items, stock levels, vendors and storage locations
+            </p>
+        </div>
+
+        <div class="system-id">
+            SYS-MOD: INV-001
+        </div>
 
     </div>
 
 
-    <div id="clock">
-        00:00:00
+    <!-- INVENTORY TOOLBAR -->
+    <section class="panel" style="margin-bottom:20px;">
+
+        <div
+            style="
+                display:flex;
+                align-items:center;
+                justify-content:space-between;
+                gap:14px;
+                padding:16px 18px;
+                flex-wrap:wrap;
+            "
+        >
+
+            <div
+                style="
+                    display:flex;
+                    align-items:center;
+                    gap:10px;
+                    flex:1;
+                    min-width:280px;
+                "
+            >
+
+                <input
+                    id="inventorySearch"
+                    type="search"
+                    placeholder="SEARCH PART NUMBER, DESCRIPTION, BARCODE..."
+                    autocomplete="off"
+                    style="
+                        width:100%;
+                        padding:12px 14px;
+                        border:1px solid var(--border);
+                        background:var(--bg-input);
+                        color:var(--text-primary);
+                        outline:none;
+                        font-family:var(--font-mono);
+                        font-size:11px;
+                    "
+                >
+
+            </div>
+
+            <button
+                type="button"
+                id="addItemButton"
+                style="
+                    padding:12px 18px;
+                    border:1px solid rgba(22,135,212,0.45);
+                    background:var(--accent);
+                    color:#fff;
+                    font-family:var(--font-mono);
+                    font-size:11px;
+                    font-weight:600;
+                    cursor:pointer;
+                "
+            >
+                + ADD INVENTORY ITEM
+            </button>
+
+        </div>
+
+
+        <!-- FILTERS -->
+        <div
+            style="
+                display:grid;
+                grid-template-columns:repeat(4,minmax(0,1fr));
+                gap:10px;
+                padding:0 18px 16px;
+            "
+            class="inventory-filters"
+        >
+
+            <select id="categoryFilter" class="inventory-control">
+                <option value="">ALL CATEGORIES</option>
+            </select>
+
+            <select id="subcategoryFilter" class="inventory-control">
+                <option value="">ALL SUBCATEGORIES</option>
+            </select>
+
+            <select id="vendorFilter" class="inventory-control">
+                <option value="">ALL VENDORS</option>
+            </select>
+
+            <select id="stockFilter" class="inventory-control">
+                <option value="">ALL STOCK STATUS</option>
+                <option value="in_stock">IN STOCK</option>
+                <option value="low">LOW STOCK</option>
+                <option value="out">OUT OF STOCK</option>
+            </select>
+
+        </div>
+
+    </section>
+
+
+    <!-- INVENTORY SUMMARY -->
+    <section
+        class="stats-grid"
+        style="grid-template-columns:repeat(4,minmax(0,1fr));"
+    >
+
+        <div class="stat-card">
+            <div class="stat-label">Items Displayed</div>
+            <div class="stat-value" id="itemsDisplayed">--</div>
+            <div class="stat-meta">Current filtered results</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Units</div>
+            <div class="stat-value" id="totalUnits">--</div>
+            <div class="stat-meta">Quantity on hand</div>
+        </div>
+
+        <div class="stat-card stat-warning">
+            <div class="stat-label">Low Stock</div>
+            <div class="stat-value" id="lowStockCount">--</div>
+            <div class="stat-meta">At or below minimum</div>
+        </div>
+
+        <div class="stat-card stat-danger">
+            <div class="stat-label">Out of Stock</div>
+            <div class="stat-value" id="outOfStockCount">--</div>
+            <div class="stat-meta">Zero quantity</div>
+        </div>
+
+    </section>
+
+
+    <!-- INVENTORY TABLE -->
+    <section class="panel">
+
+        <div class="panel-header">
+
+            <div class="panel-title">
+                Inventory Items
+            </div>
+
+            <div
+                id="inventoryResultStatus"
+                style="
+                    font-family:var(--font-mono);
+                    font-size:10px;
+                    color:var(--text-muted);
+                "
+            >
+                LOADING...
+            </div>
+
+        </div>
+
+
+        <div style="overflow-x:auto;">
+
+            <table
+                style="
+                    width:100%;
+                    border-collapse:collapse;
+                    min-width:1000px;
+                "
+            >
+
+                <thead>
+
+                    <tr
+                        style="
+                            border-bottom:1px solid var(--border);
+                            background:rgba(255,255,255,0.015);
+                        "
+                    >
+
+                        <th class="inventory-th">PART NUMBER</th>
+                        <th class="inventory-th">DESCRIPTION</th>
+                        <th class="inventory-th">CATEGORY</th>
+                        <th class="inventory-th">SUBCATEGORY</th>
+                        <th class="inventory-th">VENDOR</th>
+                        <th class="inventory-th">QTY</th>
+                        <th class="inventory-th">MIN</th>
+                        <th class="inventory-th">LOCATION</th>
+                        <th class="inventory-th">STATUS</th>
+                        <th class="inventory-th">ACTION</th>
+
+                    </tr>
+
+                </thead>
+
+                <tbody id="inventoryTableBody">
+
+                    <tr>
+                        <td
+                            colspan="10"
+                            style="
+                                padding:40px 18px;
+                                text-align:center;
+                                color:var(--text-muted);
+                                font-family:var(--font-mono);
+                                font-size:11px;
+                            "
+                        >
+                            LOADING INVENTORY...
+                        </td>
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<footer>
+
+    <div>COGENT HEX // INVENTORY CONTROL</div>
+
+    <div>SYSTEM STATUS: OPERATIONAL</div>
+
+    <div>v0.1.0</div>
+
+</footer>
+
+
+<!-- ADD ITEM MODAL -->
+<div
+    id="itemModal"
+    style="
+        display:none;
+        position:fixed;
+        inset:0;
+        z-index:1000;
+        background:rgba(0,0,0,0.72);
+        padding:30px;
+        overflow:auto;
+    "
+>
+
+    <div
+        style="
+            max-width:900px;
+            margin:30px auto;
+            background:var(--bg-panel);
+            border:1px solid var(--border);
+            box-shadow:0 20px 60px rgba(0,0,0,0.45);
+        "
+    >
+
+        <div class="panel-header">
+
+            <div>
+                <div class="panel-title">Add Inventory Item</div>
+
+                <div
+                    style="
+                        margin-top:5px;
+                        color:var(--text-muted);
+                        font-family:var(--font-mono);
+                        font-size:9px;
+                    "
+                >
+                    CREATE NEW INVENTORY RECORD
+                </div>
+            </div>
+
+            <button
+                type="button"
+                id="closeItemModal"
+                style="
+                    border:1px solid var(--border-light);
+                    background:transparent;
+                    color:var(--text-secondary);
+                    padding:7px 10px;
+                    cursor:pointer;
+                    font-family:var(--font-mono);
+                    font-size:10px;
+                "
+            >
+                CLOSE
+            </button>
+
+        </div>
+
+
+        <form
+            id="inventoryForm"
+            style="
+                padding:22px;
+                display:grid;
+                grid-template-columns:repeat(2,minmax(0,1fr));
+                gap:16px;
+            "
+        >
+
+            <div class="inventory-field">
+                <label>PART NUMBER *</label>
+                <input name="part_number" required>
+            </div>
+
+            <div class="inventory-field">
+                <label>BARCODE</label>
+                <input name="barcode">
+            </div>
+
+            <div class="inventory-field">
+                <label>SKU</label>
+                <input name="sku">
+            </div>
+
+            <div class="inventory-field">
+                <label>DESCRIPTION *</label>
+                <input name="description" required>
+            </div>
+
+            <div class="inventory-field">
+                <label>CATEGORY *</label>
+                <select name="category_id" id="formCategory" required>
+                    <option value="">SELECT CATEGORY</option>
+                </select>
+            </div>
+
+            <div class="inventory-field">
+                <label>SUBCATEGORY</label>
+                <select name="subcategory_id" id="formSubcategory">
+                    <option value="">SELECT SUBCATEGORY</option>
+                </select>
+            </div>
+
+            <div class="inventory-field">
+                <label>MANUFACTURER</label>
+                <input name="manufacturer">
+            </div>
+
+            <div class="inventory-field">
+                <label>MANUFACTURER PART #</label>
+                <input name="manufacturer_part_number">
+            </div>
+
+            <div class="inventory-field">
+                <label>MODEL NUMBER</label>
+                <input name="model_number">
+            </div>
+
+            <div class="inventory-field">
+                <label>VENDOR</label>
+                <select name="vendor_id" id="formVendor">
+                    <option value="">SELECT VENDOR</option>
+                </select>
+            </div>
+
+            <div class="inventory-field">
+                <label>VENDOR PART #</label>
+                <input name="vendor_part_number">
+            </div>
+
+            <div class="inventory-field">
+                <label>UNIT OF MEASURE</label>
+                <input name="unit_of_measure" value="each">
+            </div>
+
+            <div class="inventory-field">
+                <label>QUANTITY ON HAND</label>
+                <input
+                    name="quantity_on_hand"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label>MINIMUM QUANTITY</label>
+                <input
+                    name="minimum_quantity"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value="0"
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label>REORDER QUANTITY</label>
+                <input
+                    name="reorder_quantity"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                >
+            </div>
+
+            <div class="inventory-field">
+                <label>LOCATION</label>
+                <select name="location_id" id="formLocation">
+                    <option value="">SELECT LOCATION</option>
+                </select>
+            </div>
+
+            <div class="inventory-field">
+                <label>UNIT COST</label>
+                <input
+                    name="unit_cost"
+                    type="number"
+                    min="0"
+                    step="0.01"
+                >
+            </div>
+
+            <div class="inventory-field" style="grid-column:1/-1;">
+                <label>NOTES</label>
+                <textarea
+                    name="notes"
+                    rows="4"
+                    style="
+                        resize:vertical;
+                        width:100%;
+                        padding:11px 12px;
+                        border:1px solid var(--border);
+                        background:var(--bg-input);
+                        color:var(--text-primary);
+                        outline:none;
+                        font-family:var(--font-ui);
+                        font-size:12px;
+                    "
+                ></textarea>
+            </div>
+
+            <div
+                style="
+                    grid-column:1/-1;
+                    display:flex;
+                    align-items:center;
+                    justify-content:space-between;
+                    gap:15px;
+                    padding-top:5px;
+                "
+            >
+
+                <div
+                    id="formMessage"
+                    style="
+                        color:var(--text-muted);
+                        font-family:var(--font-mono);
+                        font-size:10px;
+                    "
+                ></div>
+
+                <button
+                    type="submit"
+                    id="saveInventoryButton"
+                    style="
+                        padding:12px 22px;
+                        border:1px solid rgba(22,135,212,0.45);
+                        background:var(--accent);
+                        color:#fff;
+                        font-family:var(--font-mono);
+                        font-size:11px;
+                        font-weight:600;
+                        cursor:pointer;
+                    "
+                >
+                    SAVE INVENTORY ITEM
+                </button>
+
+            </div>
+
+        </form>
+
     </div>
 
 </div>
 
 
-<!-- =====================================
-     NAVIGATION
-===================================== -->
-
-<nav class="navbar">
-
-
-    <div class="brand">
-
-        <div class="brand-mark">
-            CH
-        </div>
-
-
-        <div>
-
-            <div class="brand-name">
-                COGENT HEX
-            </div>
-
-            <div class="brand-system">
-                INDUSTRIAL INVENTORY
-            </div>
-
-        </div>
-
-    </div>
-
-
-    <div class="nav-links">
-
-        <a
-            href="index.html"
-            class="nav-link"
-        >
-            DASHBOARD
-        </a>
-
-        <a
-            href="inventory.html"
-            class="nav-link active"
-        >
-            INVENTORY
-        </a>
-
-        <a
-            href="#"
-            class="nav-link"
-        >
-            TRANSACTIONS
-        </a>
-
-        <a
-            href="#"
-            class="nav-link"
-        >
-            VENDORS
-        </a>
-
-        <a
-            href="#"
-            class="nav-link"
-        >
-            REPORTS
-        </a>
-
-    </div>
-
-
-    <div class="user-area">
-
-        <div class="user-info">
-
-            <div class="user-name">
-                SYSTEM USER
-            </div>
-
-            <div class="user-role">
-                INVENTORY OPERATOR
-            </div>
-
-        </div>
-
-
-        <div class="user-avatar">
-            SU
-        </div>
-
-    </div>
-
-</nav>
-
-
-<!-- =====================================
-     MAIN
-===================================== -->
-
-<main>
-
-
-    <div class="page-header">
-
-        <div>
-
-            <h1 class="page-title">
-                Inventory
-            </h1>
-
-            <p class="page-subtitle">
-                Browse, search and manage stocked materials
-            </p>
-
-        </div>
-
-
-        <div class="system-id">
-            INV-MODULE-001
-        </div>
-
-    </div>
-
-
-    <!-- =================================
-         TOOLBAR
-    ================================= -->
-
-    <div class="toolbar">
-
-
-        <div class="search-box">
-
-            <span class="search-icon">
-                &gt;_
-            </span>
-
-            <input
-                type="search"
-                id="searchInput"
-                placeholder="SEARCH PART NUMBER, DESCRIPTION, MANUFACTURER, BARCODE..."
-            >
-
-        </div>
-
-
-        <button
-            class="toolbar-button"
-            onclick="openScanner()"
-        >
-            [ SCAN ]
-        </button>
-
-
-        <button
-            class="toolbar-button"
-        >
-            FILTER
-        </button>
-
-
-        <button
-            class="toolbar-button primary"
-        >
-            + ADD ITEM
-        </button>
-
-    </div>
-
-
-    <!-- =================================
-         INVENTORY CONTENT
-    ================================= -->
-
-    <div class="inventory-layout">
-
-
-        <!-- CATEGORY TREE -->
-
-        <aside class="category-panel">
-
-
-            <div class="panel-header">
-
-                <div class="panel-title">
-                    Categories
-                </div>
-
-                <div class="panel-count">
-                    1,842
-                </div>
-
-            </div>
-
-
-            <div class="category-list">
-
-
-                <div
-                    class="category active"
-                    data-category="all"
-                >
-
-                    <span class="category-icon">
-                        ▣
-                    </span>
-
-                    <span>
-                        All Inventory
-                    </span>
-
-                    <span class="category-count">
-                        1,842
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category"
-                    data-category="electrical"
-                >
-
-                    <span class="category-icon">
-                        ⚡
-                    </span>
-
-                    <span>
-                        Electrical
-                    </span>
-
-                    <span class="category-count">
-                        724
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category category-indent"
-                    data-category="breakers"
-                >
-
-                    <span class="category-icon">
-                        └
-                    </span>
-
-                    <span>
-                        Breakers
-                    </span>
-
-                    <span class="category-count">
-                        82
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category category-indent"
-                    data-category="relays"
-                >
-
-                    <span class="category-icon">
-                        └
-                    </span>
-
-                    <span>
-                        Relays
-                    </span>
-
-                    <span class="category-count">
-                        143
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category category-indent category-indent"
-                    data-category="contact-relays"
-                >
-
-                    <span class="category-icon">
-                        └
-                    </span>
-
-                    <span>
-                        Contact
-                    </span>
-
-                    <span class="category-count">
-                        67
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category category-indent category-indent"
-                    data-category="safety-relays"
-                >
-
-                    <span class="category-icon">
-                        └
-                    </span>
-
-                    <span>
-                        Safety
-                    </span>
-
-                    <span class="category-count">
-                        76
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category category-indent"
-                    data-category="vfds"
-                >
-
-                    <span class="category-icon">
-                        └
-                    </span>
-
-                    <span>
-                        VFDs
-                    </span>
-
-                    <span class="category-count">
-                        54
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category"
-                    data-category="networking"
-                >
-
-                    <span class="category-icon">
-                        ◈
-                    </span>
-
-                    <span>
-                        Networking
-                    </span>
-
-                    <span class="category-count">
-                        287
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category category-indent"
-                    data-category="ethernet"
-                >
-
-                    <span class="category-icon">
-                        └
-                    </span>
-
-                    <span>
-                        Ethernet
-                    </span>
-
-                    <span class="category-count">
-                        173
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category category-indent"
-                    data-category="splitters"
-                >
-
-                    <span class="category-icon">
-                        └
-                    </span>
-
-                    <span>
-                        Splitters
-                    </span>
-
-                    <span class="category-count">
-                        42
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category"
-                    data-category="wiring"
-                >
-
-                    <span class="category-icon">
-                        ≋
-                    </span>
-
-                    <span>
-                        Wiring
-                    </span>
-
-                    <span class="category-count">
-                        416
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category category-indent"
-                    data-category="tool-cord"
-                >
-
-                    <span class="category-icon">
-                        └
-                    </span>
-
-                    <span>
-                        Tool Cord
-                    </span>
-
-                    <span class="category-count">
-                        91
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category"
-                    data-category="mechanical"
-                >
-
-                    <span class="category-icon">
-                        ⚙
-                    </span>
-
-                    <span>
-                        Mechanical
-                    </span>
-
-                    <span class="category-count">
-                        265
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category category-indent"
-                    data-category="heat-sinks"
-                >
-
-                    <span class="category-icon">
-                        └
-                    </span>
-
-                    <span>
-                        Heat Sinks
-                    </span>
-
-                    <span class="category-count">
-                        31
-                    </span>
-
-                </div>
-
-
-                <div
-                    class="category"
-                    data-category="tools"
-                >
-
-                    <span class="category-icon">
-                        ⚒
-                    </span>
-
-                    <span>
-                        Tools
-                    </span>
-
-                    <span class="category-count">
-                        150
-                    </span>
-
-                </div>
-
-
-            </div>
-
-        </aside>
-
-
-        <!-- INVENTORY TABLE -->
-
-        <section class="inventory-panel">
-
-
-            <div class="panel-header">
-
-                <div class="panel-title">
-                    Inventory Items
-                </div>
-
-
-                <div class="panel-count">
-                    DISPLAYING 10 OF 1,842
-                </div>
-
-            </div>
-
-
-            <div class="table-container">
-
-                <table>
-
-                    <thead>
-
-                        <tr>
-
-                            <th>
-                                Item
-                            </th>
-
-                            <th>
-                                Category
-                            </th>
-
-                            <th>
-                                Manufacturer
-                            </th>
-
-                            <th>
-                                Vendor
-                            </th>
-
-                            <th>
-                                Location
-                            </th>
-
-                            <th>
-                                Quantity
-                            </th>
-
-                            <th>
-                                Status
-                            </th>
-
-                            <th>
-                            </th>
-
-                        </tr>
-
-                    </thead>
-
-
-                    <tbody id="inventoryTable">
-
-
-                        <!-- ITEM 1 -->
-
-                        <tr
-                            data-category="vfds"
-                            data-search="powerflex 525 25b-d017n114 allen bradley rockwell vfd"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    PowerFlex 525
-                                </div>
-
-                                <div class="part-number">
-                                    25B-D017N114
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="category-label">
-                                    Electrical / VFDs
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="manufacturer">
-                                    Allen-Bradley
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="vendor">
-                                    Radwell
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="location">
-                                    A4-R02
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity good">
-                                    14
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill"
-                                        style="width: 80%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status in-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    IN STOCK
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ITEM 2 -->
-
-                        <tr
-                            data-category="safety-relays"
-                            data-search="safety relay g9se-221-t05 omron grainger"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    Safety Relay
-                                </div>
-
-                                <div class="part-number">
-                                    G9SE-221-T05
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                <div class="category-label">
-                                    Electrical / Relays / Safety
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="manufacturer">
-                                    Omron
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="vendor">
-                                    Grainger
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="location">
-                                    A3-R02
-                                </div>
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity low">
-                                    2
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill low"
-                                        style="width: 20%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status low-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    LOW STOCK
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ITEM 3 -->
-
-                        <tr
-                            data-category="breakers"
-                            data-search="circuit breaker qo120 square d grainger"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    Circuit Breaker
-                                </div>
-
-                                <div class="part-number">
-                                    QO120
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                <div class="category-label">
-                                    Electrical / Breakers
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="manufacturer">
-                                    Square D
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="vendor">
-                                    Grainger
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="location">
-                                    A1-R03
-                                </div>
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity good">
-                                    24
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill"
-                                        style="width: 90%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status in-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    IN STOCK
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ITEM 4 -->
-
-                        <tr
-                            data-category="contact-relays"
-                            data-search="control relay contact 700-cf allen bradley"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    Control Relay
-                                </div>
-
-                                <div class="part-number">
-                                    700-CF220
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                <div class="category-label">
-                                    Electrical / Relays / Contact
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="manufacturer">
-                                    Allen-Bradley
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="vendor">
-                                    McNaughton-McKay
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="location">
-                                    A3-R04
-                                </div>
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity good">
-                                    38
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill"
-                                        style="width: 76%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status in-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    IN STOCK
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ITEM 5 -->
-
-                        <tr
-                            data-category="ethernet"
-                            data-search="ethernet cable cat6 10ft black panduit"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    Ethernet Cable
-                                </div>
-
-                                <div class="part-number">
-                                    CAT6-10FT-BLK
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                <div class="category-label">
-                                    Networking / Ethernet
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="manufacturer">
-                                    Panduit
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="vendor">
-                                    Graybar
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="location">
-                                    B1-R02
-                                </div>
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity good">
-                                    84
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill"
-                                        style="width: 84%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status in-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    IN STOCK
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ITEM 6 -->
-
-                        <tr
-                            data-category="splitters"
-                            data-search="ethernet splitter eth-spl-01 phoenix contact"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    Ethernet Splitter
-                                </div>
-
-                                <div class="part-number">
-                                    ETH-SPL-01
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                <div class="category-label">
-                                    Networking / Splitters
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="manufacturer">
-                                    Phoenix Contact
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="vendor">
-                                    AutomationDirect
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="location">
-                                    B1-R03
-                                </div>
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity out">
-                                    1
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill out"
-                                        style="width: 10%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status out-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    CRITICAL
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ITEM 7 -->
-
-                        <tr
-                            data-category="tool-cord"
-                            data-search="tool cord tc-18/3-25 southwire"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    Tool Cord
-                                </div>
-
-                                <div class="part-number">
-                                    TC-18/3-25
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                <div class="category-label">
-                                    Wiring / Tool Cord
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="manufacturer">
-                                    Southwire
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="vendor">
-                                    Home Depot
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="location">
-                                    B2-R04
-                                </div>
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity low">
-                                    3
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill low"
-                                        style="width: 30%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status low-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    LOW STOCK
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ITEM 8 -->
-
-                        <tr
-                            data-category="heat-sinks"
-                            data-search="heat sink hs-to220-01"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    Heat Sink
-                                </div>
-
-                                <div class="part-number">
-                                    HS-TO220-01
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                <div class="category-label">
-                                    Mechanical / Heat Sinks
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="manufacturer">
-                                    Generic
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="vendor">
-                                    DigiKey
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="location">
-                                    C1-R05
-                                </div>
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity low">
-                                    3
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill low"
-                                        style="width: 30%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status low-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    LOW STOCK
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ITEM 9 -->
-
-                        <tr
-                            data-category="contact-relays"
-                            data-search="contactor lc1d25 schneider electric"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    Contactor
-                                </div>
-
-                                <div class="part-number">
-                                    LC1D25
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                <div class="category-label">
-                                    Electrical / Contactors
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="manufacturer">
-                                    Schneider Electric
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="vendor">
-                                    Allied Electronics
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="location">
-                                    A2-R01
-                                </div>
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity good">
-                                    18
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill"
-                                        style="width: 72%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status in-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    IN STOCK
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                        <!-- ITEM 10 -->
-
-                        <tr
-                            data-category="breakers"
-                            data-search="miniature circuit breaker c60n schneider"
-                        >
-
-                            <td>
-
-                                <div class="item-name">
-                                    Miniature Circuit Breaker
-                                </div>
-
-                                <div class="part-number">
-                                    C60N-2P-10A
-                                </div>
-
-                            </td>
-
-
-                            <td>
-                                <div class="category-label">
-                                    Electrical / Breakers
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="manufacturer">
-                                    Schneider Electric
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="vendor">
-                                    Rexel
-                                </div>
-                            </td>
-
-
-                            <td>
-                                <div class="location">
-                                    A1-R04
-                                </div>
-                            </td>
-
-
-                            <td>
-
-                                <div class="quantity good">
-                                    31
-                                </div>
-
-                                <div class="stock-bar">
-
-                                    <div
-                                        class="stock-fill"
-                                        style="width: 88%;"
-                                    ></div>
-
-                                </div>
-
-                            </td>
-
-
-                            <td>
-
-                                <span class="status in-stock">
-
-                                    <span class="status-dot"></span>
-
-                                    IN STOCK
-
-                                </span>
-
-                            </td>
-
-
-                            <td class="action-menu">
-                                ⋮
-                            </td>
-
-                        </tr>
-
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-
-            <!-- TABLE FOOTER -->
-
-            <div class="table-footer">
-
-                <div>
-                    1–10 OF 1,842 ITEMS
-                </div>
-
-
-                <div class="pagination">
-
-                    <button class="page-button">
-                        ‹
-                    </button>
-
-                    <button class="page-button active">
-                        1
-                    </button>
-
-                    <button class="page-button">
-                        2
-                    </button>
-
-                    <button class="page-button">
-                        3
-                    </button>
-
-                    <button class="page-button">
-                        4
-                    </button>
-
-                    <button class="page-button">
-                        5
-                    </button>
-
-                    <button class="page-button">
-                        ›
-                    </button>
-
-                </div>
-
-            </div>
-
-        </section>
-
-    </div>
-
-</main>
-
-
-<!-- =====================================
-     JAVASCRIPT
-===================================== -->
-
+<!-- SUPABASE AUTHENTICATION -->
 <script>
+(async function requireAuthentication() {
 
+    const { data: { user }, error } =
+        await supabaseClient.auth.getUser();
 
-    /* CLOCK */
-
-    function updateClock() {
-
-        const now = new Date();
-
-        const hours =
-            String(now.getHours()).padStart(2, "0");
-
-        const minutes =
-            String(now.getMinutes()).padStart(2, "0");
-
-        const seconds =
-            String(now.getSeconds()).padStart(2, "0");
-
-        document.getElementById("clock")
-            .textContent =
-            `${hours}:${minutes}:${seconds}`;
-
+    if (error || !user) {
+        window.location.replace("login.html");
+        return;
     }
 
+    const { data: profile, error: profileError } =
+        await supabaseClient
+            .from("profiles")
+            .select("first_name, last_name, display_name, role, active")
+            .eq("id", user.id)
+            .single();
 
-    updateClock();
+    if (profileError || !profile || !profile.active) {
+        await supabaseClient.auth.signOut();
+        window.location.replace("login.html");
+        return;
+    }
 
-    setInterval(updateClock, 1000);
+    const displayName =
+        profile.display_name ||
+        [profile.first_name, profile.last_name]
+            .filter(Boolean)
+            .join(" ") ||
+        user.email;
 
+    const roleName =
+        profile.role.replace("_", " ").toUpperCase();
 
-    /* =================================
-       SEARCH
-    ================================= */
+    const initials =
+        displayName
+            .split(/\s+/)
+            .filter(Boolean)
+            .slice(0, 2)
+            .map(name => name[0].toUpperCase())
+            .join("");
 
-    const searchInput =
-        document.getElementById("searchInput");
+    document.getElementById("currentUserName").textContent =
+        displayName.toUpperCase();
 
-    const rows =
-        document.querySelectorAll(
-            "#inventoryTable tr"
-        );
+    document.getElementById("currentUserRole").textContent =
+        roleName;
 
+    document.getElementById("currentUserAvatar").textContent =
+        initials || "US";
 
-    searchInput.addEventListener(
-        "input",
-        function() {
+    document.getElementById("logoutButton").addEventListener(
+        "click",
+        async function () {
 
-            const search =
-                this.value
-                    .toLowerCase()
-                    .trim();
+            const { error } =
+                await supabaseClient.auth.signOut();
 
+            if (error) {
+                console.error("Sign out error:", error);
+                return;
+            }
 
-            rows.forEach(row => {
-
-                const data =
-                    row.dataset.search
-                        .toLowerCase();
-
-                row.style.display =
-                    data.includes(search)
-                        ? ""
-                        : "none";
-
-            });
-
+            window.location.replace("login.html");
         }
     );
 
+})();
+</script>
 
-    /* =================================
-       CATEGORY FILTER
-    ================================= */
 
-    const categories =
-        document.querySelectorAll(
-            ".category"
+<!-- INVENTORY APPLICATION -->
+<script>
+(async function inventoryApplication() {
+
+    const tableBody =
+        document.getElementById("inventoryTableBody");
+
+    const searchInput =
+        document.getElementById("inventorySearch");
+
+    const categoryFilter =
+        document.getElementById("categoryFilter");
+
+    const subcategoryFilter =
+        document.getElementById("subcategoryFilter");
+
+    const vendorFilter =
+        document.getElementById("vendorFilter");
+
+    const stockFilter =
+        document.getElementById("stockFilter");
+
+    const itemsDisplayed =
+        document.getElementById("itemsDisplayed");
+
+    const totalUnits =
+        document.getElementById("totalUnits");
+
+    const lowStockCount =
+        document.getElementById("lowStockCount");
+
+    const outOfStockCount =
+        document.getElementById("outOfStockCount");
+
+    const resultStatus =
+        document.getElementById("inventoryResultStatus");
+
+    const modal =
+        document.getElementById("itemModal");
+
+    const form =
+        document.getElementById("inventoryForm");
+
+    const formMessage =
+        document.getElementById("formMessage");
+
+    const formCategory =
+        document.getElementById("formCategory");
+
+    const formSubcategory =
+        document.getElementById("formSubcategory");
+
+    const formVendor =
+        document.getElementById("formVendor");
+
+    const formLocation =
+        document.getElementById("formLocation");
+
+    let inventoryItems = [];
+    let categories = [];
+    let subcategories = [];
+    let vendors = [];
+    let locations = [];
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function formatNumber(value) {
+        const number = Number(value || 0);
+
+        return Number.isInteger(number)
+            ? number.toLocaleString()
+            : number.toLocaleString(undefined, {
+                maximumFractionDigits: 2
+            });
+    }
+
+    function locationText(location) {
+
+        if (!location) {
+            return "UNASSIGNED";
+        }
+
+        const parts = [
+            location.aisle ? `A${location.aisle}` : "",
+            location.rack ? `R${location.rack}` : "",
+            location.shelf ? `S${location.shelf}` : "",
+            location.bin ? `B${location.bin}` : ""
+        ].filter(Boolean);
+
+        return parts.length
+            ? parts.join("-")
+            : (location.name || "UNASSIGNED");
+    }
+
+    function stockStatus(item) {
+
+        const quantity =
+            Number(item.quantity_on_hand || 0);
+
+        const minimum =
+            Number(item.minimum_quantity || 0);
+
+        if (quantity === 0) {
+            return {
+                text: "OUT",
+                className: "stock-out"
+            };
+        }
+
+        if (quantity <= minimum) {
+            return {
+                text: "LOW",
+                className: "stock-low"
+            };
+        }
+
+        return {
+            text: "OK",
+            className: "stock-ok"
+        };
+    }
+
+    function populateSelect(select, rows, placeholder) {
+
+        select.innerHTML =
+            `<option value="">${placeholder}</option>` +
+            rows.map(row =>
+                `<option value="${escapeHtml(row.id)}">
+                    ${escapeHtml(row.name)}
+                </option>`
+            ).join("");
+    }
+
+    async function loadReferenceData() {
+
+        const [
+            categoriesResult,
+            subcategoriesResult,
+            vendorsResult,
+            locationsResult
+        ] = await Promise.all([
+
+            supabaseClient
+                .from("categories")
+                .select("id, name")
+                .eq("active", true)
+                .order("name"),
+
+            supabaseClient
+                .from("subcategories")
+                .select("id, name, category_id")
+                .eq("active", true)
+                .order("name"),
+
+            supabaseClient
+                .from("vendors")
+                .select("id, name")
+                .eq("active", true)
+                .order("name"),
+
+            supabaseClient
+                .from("locations")
+                .select("id, name, building, area, aisle, rack, shelf, bin")
+                .eq("active", true)
+                .order("name")
+        ]);
+
+        if (categoriesResult.error) throw categoriesResult.error;
+        if (subcategoriesResult.error) throw subcategoriesResult.error;
+        if (vendorsResult.error) throw vendorsResult.error;
+        if (locationsResult.error) throw locationsResult.error;
+
+        categories = categoriesResult.data || [];
+        subcategories = subcategoriesResult.data || [];
+        vendors = vendorsResult.data || [];
+        locations = locationsResult.data || [];
+
+        populateSelect(
+            categoryFilter,
+            categories,
+            "ALL CATEGORIES"
         );
 
+        populateSelect(
+            vendorFilter,
+            vendors,
+            "ALL VENDORS"
+        );
 
-    categories.forEach(category => {
+        populateSelect(
+            formCategory,
+            categories,
+            "SELECT CATEGORY"
+        );
 
-        category.addEventListener(
-            "click",
-            function() {
+        populateSelect(
+            formVendor,
+            vendors,
+            "SELECT VENDOR"
+        );
 
-                categories.forEach(c =>
-                    c.classList.remove("active")
-                );
+        formLocation.innerHTML =
+            `<option value="">SELECT LOCATION</option>` +
+            locations.map(location =>
+                `<option value="${escapeHtml(location.id)}">
+                    ${escapeHtml(location.name)}
+                </option>`
+            ).join("");
 
-                this.classList.add("active");
+        updateSubcategorySelect();
+    }
 
+    function updateSubcategorySelect() {
 
-                const selected =
-                    this.dataset.category;
+        const categoryId =
+            formCategory.value;
 
+        const filtered =
+            categoryId
+                ? subcategories.filter(
+                    sub => sub.category_id === categoryId
+                )
+                : subcategories;
 
-                rows.forEach(row => {
+        formSubcategory.innerHTML =
+            `<option value="">SELECT SUBCATEGORY</option>` +
+            filtered.map(sub =>
+                `<option value="${escapeHtml(sub.id)}">
+                    ${escapeHtml(sub.name)}
+                </option>`
+            ).join("");
+    }
 
-                    if (
-                        selected === "all" ||
-                        row.dataset.category === selected
-                    ) {
+    function updateFilterSubcategories() {
 
-                        row.style.display = "";
+        const categoryId =
+            categoryFilter.value;
 
-                    } else {
+        const filtered =
+            categoryId
+                ? subcategories.filter(
+                    sub => sub.category_id === categoryId
+                )
+                : subcategories;
 
-                        row.style.display = "none";
+        subcategoryFilter.innerHTML =
+            `<option value="">ALL SUBCATEGORIES</option>` +
+            filtered.map(sub =>
+                `<option value="${escapeHtml(sub.id)}">
+                    ${escapeHtml(sub.name)}
+                </option>`
+            ).join("");
+    }
 
+    async function loadInventory() {
+
+        resultStatus.textContent = "LOADING...";
+
+        const { data, error } =
+            await supabaseClient
+                .from("inventory_items")
+                .select(`
+                    id,
+                    part_number,
+                    barcode,
+                    sku,
+                    description,
+                    category_id,
+                    subcategory_id,
+                    manufacturer,
+                    manufacturer_part_number,
+                    model_number,
+                    vendor_id,
+                    vendor_part_number,
+                    unit_of_measure,
+                    quantity_on_hand,
+                    minimum_quantity,
+                    reorder_quantity,
+                    location_id,
+                    unit_cost,
+                    notes,
+                    active,
+                    categories (
+                        name
+                    ),
+                    subcategories (
+                        name
+                    ),
+                    vendors (
+                        name
+                    ),
+                    locations (
+                        name,
+                        building,
+                        area,
+                        aisle,
+                        rack,
+                        shelf,
+                        bin
+                    )
+                `)
+                .eq("active", true)
+                .order("description");
+
+        if (error) {
+            throw error;
+        }
+
+        inventoryItems = data || [];
+
+        renderInventory();
+    }
+
+    function renderInventory() {
+
+        const search =
+            searchInput.value.trim().toLowerCase();
+
+        const categoryId =
+            categoryFilter.value;
+
+        const subcategoryId =
+            subcategoryFilter.value;
+
+        const vendorId =
+            vendorFilter.value;
+
+        const stockStatusFilter =
+            stockFilter.value;
+
+        const filtered =
+            inventoryItems.filter(item => {
+
+                const searchable = [
+                    item.part_number,
+                    item.description,
+                    item.barcode,
+                    item.sku,
+                    item.manufacturer,
+                    item.manufacturer_part_number,
+                    item.model_number,
+                    item.vendor_part_number
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                if (
+                    search &&
+                    !searchable.includes(search)
+                ) {
+                    return false;
+                }
+
+                if (
+                    categoryId &&
+                    item.category_id !== categoryId
+                ) {
+                    return false;
+                }
+
+                if (
+                    subcategoryId &&
+                    item.subcategory_id !== subcategoryId
+                ) {
+                    return false;
+                }
+
+                if (
+                    vendorId &&
+                    item.vendor_id !== vendorId
+                ) {
+                    return false;
+                }
+
+                const quantity =
+                    Number(item.quantity_on_hand || 0);
+
+                const minimum =
+                    Number(item.minimum_quantity || 0);
+
+                if (
+                    stockStatusFilter === "out" &&
+                    quantity !== 0
+                ) {
+                    return false;
+                }
+
+                if (
+                    stockStatusFilter === "low" &&
+                    !(quantity > 0 && quantity <= minimum)
+                ) {
+                    return false;
+                }
+
+                if (
+                    stockStatusFilter === "in_stock" &&
+                    !(quantity > minimum)
+                ) {
+                    return false;
+                }
+
+                return true;
+            });
+
+        itemsDisplayed.textContent =
+            filtered.length.toLocaleString();
+
+        totalUnits.textContent =
+            filtered.reduce(
+                (total, item) =>
+                    total + Number(item.quantity_on_hand || 0),
+                0
+            ).toLocaleString();
+
+        lowStockCount.textContent =
+            filtered.filter(item =>
+                Number(item.quantity_on_hand || 0) <=
+                Number(item.minimum_quantity || 0)
+            ).length.toLocaleString();
+
+        outOfStockCount.textContent =
+            filtered.filter(item =>
+                Number(item.quantity_on_hand || 0) === 0
+            ).length.toLocaleString();
+
+        resultStatus.textContent =
+            `${filtered.length} ITEM${filtered.length === 1 ? "" : "S"}`;
+
+        if (filtered.length === 0) {
+
+            tableBody.innerHTML = `
+                <tr>
+                    <td
+                        colspan="10"
+                        style="
+                            padding:45px 18px;
+                            text-align:center;
+                            color:var(--text-muted);
+                            font-family:var(--font-mono);
+                            font-size:11px;
+                        "
+                    >
+                        NO INVENTORY ITEMS FOUND
+                    </td>
+                </tr>
+            `;
+
+            return;
+        }
+
+        tableBody.innerHTML =
+            filtered.map(item => {
+
+                const status =
+                    stockStatus(item);
+
+                const quantity =
+                    formatNumber(item.quantity_on_hand);
+
+                const minimum =
+                    formatNumber(item.minimum_quantity);
+
+                return `
+                    <tr
+                        style="
+                            border-bottom:1px solid rgba(255,255,255,0.035);
+                        "
+                    >
+
+                        <td class="inventory-td">
+                            <div
+                                style="
+                                    color:var(--text-primary);
+                                    font-weight:600;
+                                "
+                            >
+                                ${escapeHtml(item.part_number)}
+                            </div>
+
+                            ${
+                                item.barcode
+                                    ? `
+                                        <div
+                                            style="
+                                                margin-top:3px;
+                                                color:var(--text-muted);
+                                                font-family:var(--font-mono);
+                                                font-size:9px;
+                                            "
+                                        >
+                                            ${escapeHtml(item.barcode)}
+                                        </div>
+                                    `
+                                    : ""
+                            }
+                        </td>
+
+                        <td class="inventory-td">
+                            ${escapeHtml(item.description)}
+                        </td>
+
+                        <td class="inventory-td">
+                            ${escapeHtml(item.categories?.name || "--")}
+                        </td>
+
+                        <td class="inventory-td">
+                            ${escapeHtml(item.subcategories?.name || "--")}
+                        </td>
+
+                        <td class="inventory-td">
+                            ${escapeHtml(item.vendors?.name || "--")}
+                        </td>
+
+                        <td
+                            class="inventory-td"
+                            style="
+                                font-family:var(--font-mono);
+                                font-weight:600;
+                            "
+                        >
+                            ${quantity}
+                        </td>
+
+                        <td
+                            class="inventory-td"
+                            style="
+                                color:var(--text-muted);
+                                font-family:var(--font-mono);
+                            "
+                        >
+                            ${minimum}
+                        </td>
+
+                        <td
+                            class="inventory-td"
+                            style="
+                                color:var(--text-secondary);
+                                font-family:var(--font-mono);
+                                font-size:10px;
+                            "
+                        >
+                            ${escapeHtml(locationText(item.locations))}
+                        </td>
+
+                        <td class="inventory-td">
+                            <span class="${status.className}">
+                                ${status.text}
+                            </span>
+                        </td>
+
+                        <td class="inventory-td">
+                            <button
+                                type="button"
+                                class="view-item-button"
+                                data-item-id="${escapeHtml(item.id)}"
+                            >
+                                VIEW
+                            </button>
+                        </td>
+
+                    </tr>
+                `;
+
+            }).join("");
+
+        document
+            .querySelectorAll(".view-item-button")
+            .forEach(button => {
+
+                button.addEventListener("click", () => {
+
+                    const item =
+                        inventoryItems.find(
+                            record =>
+                                record.id === button.dataset.itemId
+                        );
+
+                    if (item) {
+                        openItemDetails(item);
                     }
 
                 });
 
-            }
+            });
+    }
+
+    function openItemDetails(item) {
+
+        const status =
+            stockStatus(item);
+
+        alert(
+            `PART NUMBER: ${item.part_number}\n\n` +
+            `DESCRIPTION: ${item.description}\n` +
+            `CATEGORY: ${item.categories?.name || "--"}\n` +
+            `SUBCATEGORY: ${item.subcategories?.name || "--"}\n` +
+            `VENDOR: ${item.vendors?.name || "--"}\n` +
+            `QUANTITY: ${formatNumber(item.quantity_on_hand)}\n` +
+            `MINIMUM: ${formatNumber(item.minimum_quantity)}\n` +
+            `LOCATION: ${locationText(item.locations)}\n` +
+            `STATUS: ${status.text}`
         );
+    }
+
+    function openModal() {
+
+        form.reset();
+
+        form.querySelector('[name="unit_of_measure"]').value =
+            "each";
+
+        form.querySelector('[name="quantity_on_hand"]').value =
+            "0";
+
+        form.querySelector('[name="minimum_quantity"]').value =
+            "0";
+
+        updateSubcategorySelect();
+
+        formMessage.textContent = "";
+
+        modal.style.display = "block";
+
+        setTimeout(() => {
+            form.querySelector('[name="part_number"]').focus();
+        }, 50);
+    }
+
+    function closeModal() {
+        modal.style.display = "none";
+    }
+
+    async function saveItem(event) {
+
+        event.preventDefault();
+
+        const button =
+            document.getElementById("saveInventoryButton");
+
+        const formData =
+            new FormData(form);
+
+        const payload = {};
+
+        for (const [key, value] of formData.entries()) {
+
+            const trimmed =
+                typeof value === "string"
+                    ? value.trim()
+                    : value;
+
+            payload[key] =
+                trimmed === ""
+                    ? null
+                    : trimmed;
+        }
+
+        payload.quantity_on_hand =
+            Number(payload.quantity_on_hand || 0);
+
+        payload.minimum_quantity =
+            Number(payload.minimum_quantity || 0);
+
+        if (payload.reorder_quantity !== null) {
+            payload.reorder_quantity =
+                Number(payload.reorder_quantity);
+        }
+
+        if (payload.unit_cost !== null) {
+            payload.unit_cost =
+                Number(payload.unit_cost);
+        }
+
+        button.disabled = true;
+        button.textContent = "SAVING...";
+        formMessage.textContent = "WRITING INVENTORY RECORD...";
+
+        const { error } =
+            await supabaseClient
+                .from("inventory_items")
+                .insert(payload);
+
+        if (error) {
+
+            console.error("Inventory insert error:", error);
+
+            formMessage.textContent =
+                error.message || "Unable to save item.";
+
+            button.disabled = false;
+            button.textContent = "SAVE INVENTORY ITEM";
+
+            return;
+        }
+
+        formMessage.textContent =
+            "INVENTORY ITEM CREATED.";
+
+        await loadInventory();
+
+        setTimeout(() => {
+            closeModal();
+        }, 500);
+
+        button.disabled = false;
+        button.textContent = "SAVE INVENTORY ITEM";
+    }
+
+    /* Events */
+    searchInput.addEventListener("input", renderInventory);
+
+    categoryFilter.addEventListener("change", () => {
+        updateFilterSubcategories();
+        subcategoryFilter.value = "";
+        renderInventory();
+    });
+
+    subcategoryFilter.addEventListener(
+        "change",
+        renderInventory
+    );
+
+    vendorFilter.addEventListener(
+        "change",
+        renderInventory
+    );
+
+    stockFilter.addEventListener(
+        "change",
+        renderInventory
+    );
+
+    formCategory.addEventListener(
+        "change",
+        updateSubcategorySelect
+    );
+
+    document
+        .getElementById("addItemButton")
+        .addEventListener("click", openModal);
+
+    document
+        .getElementById("closeItemModal")
+        .addEventListener("click", closeModal);
+
+    modal.addEventListener("click", event => {
+
+        if (event.target === modal) {
+            closeModal();
+        }
 
     });
 
+    form.addEventListener("submit", saveItem);
 
-    /* =================================
-       SCANNER PLACEHOLDER
-    ================================= */
+    /* Initial load */
+    try {
 
-    function openScanner() {
+        await loadReferenceData();
+        await loadInventory();
 
-        alert(
-            "SCANNER MODULE\n\n" +
-            "Barcode / QR scanner will be connected here."
-        );
+    } catch (error) {
+
+        console.error("Inventory page error:", error);
+
+        resultStatus.textContent = "DATABASE ERROR";
+
+        tableBody.innerHTML = `
+            <tr>
+                <td
+                    colspan="10"
+                    style="
+                        padding:45px 18px;
+                        text-align:center;
+                        color:var(--danger);
+                        font-family:var(--font-mono);
+                        font-size:11px;
+                    "
+                >
+                    UNABLE TO LOAD INVENTORY
+                    <div
+                        style="
+                            margin-top:8px;
+                            color:var(--text-muted);
+                            font-size:9px;
+                        "
+                    >
+                        CHECK BROWSER CONSOLE FOR DETAILS
+                    </div>
+                </td>
+            </tr>
+        `;
+    }
+
+})();
+</script>
+
+
+<!-- INVENTORY PAGE STYLES -->
+<style>
+
+.inventory-control,
+.inventory-field input,
+.inventory-field select {
+
+    width:100%;
+
+    padding:11px 12px;
+
+    border:1px solid var(--border);
+
+    background:var(--bg-input);
+
+    color:var(--text-primary);
+
+    outline:none;
+
+    font-family:var(--font-mono);
+
+    font-size:10px;
+
+}
+
+.inventory-control:focus,
+.inventory-field input:focus,
+.inventory-field select:focus,
+.inventory-field textarea:focus {
+
+    border-color:var(--accent);
+
+}
+
+.inventory-field {
+
+    display:flex;
+
+    flex-direction:column;
+
+    gap:7px;
+
+}
+
+.inventory-field label {
+
+    color:var(--text-muted);
+
+    font-family:var(--font-mono);
+
+    font-size:9px;
+
+    letter-spacing:0.7px;
+
+}
+
+.inventory-th {
+
+    padding:11px 12px;
+
+    text-align:left;
+
+    color:var(--text-muted);
+
+    font-family:var(--font-mono);
+
+    font-size:9px;
+
+    letter-spacing:0.7px;
+
+    font-weight:500;
+
+    white-space:nowrap;
+
+}
+
+.inventory-td {
+
+    padding:13px 12px;
+
+    color:var(--text-secondary);
+
+    font-size:11px;
+
+    vertical-align:middle;
+
+}
+
+.stock-ok,
+.stock-low,
+.stock-out {
+
+    display:inline-block;
+
+    min-width:38px;
+
+    padding:5px 7px;
+
+    text-align:center;
+
+    font-family:var(--font-mono);
+
+    font-size:9px;
+
+    font-weight:600;
+
+    border:1px solid;
+
+}
+
+.stock-ok {
+
+    color:var(--success);
+
+    border-color:rgba(76,175,80,0.35);
+
+    background:rgba(76,175,80,0.07);
+
+}
+
+.stock-low {
+
+    color:var(--warning);
+
+    border-color:rgba(224,165,43,0.35);
+
+    background:rgba(224,165,43,0.07);
+
+}
+
+.stock-out {
+
+    color:var(--danger);
+
+    border-color:rgba(224,82,82,0.35);
+
+    background:rgba(224,82,82,0.07);
+
+}
+
+.view-item-button {
+
+    border:1px solid var(--border-light);
+
+    background:transparent;
+
+    color:var(--accent);
+
+    padding:6px 9px;
+
+    cursor:pointer;
+
+    font-family:var(--font-mono);
+
+    font-size:9px;
+
+}
+
+.view-item-button:hover {
+
+    background:rgba(0,102,179,0.10);
+
+    border-color:var(--accent);
+
+}
+
+@media (max-width:1000px) {
+
+    .inventory-filters {
+
+        grid-template-columns:repeat(2,minmax(0,1fr)) !important;
 
     }
 
+}
+
+@media (max-width:600px) {
+
+    .inventory-filters {
+
+        grid-template-columns:1fr !important;
+
+    }
+
+    #itemModal {
+
+        padding:10px !important;
+
+    }
+
+    #inventoryForm {
+
+        grid-template-columns:1fr !important;
+
+    }
+
+}
+
+</style>
+
+
+<!-- CLOCK -->
+<script>
+
+function updateClock() {
+
+    const now = new Date();
+
+    const hours =
+        String(now.getHours()).padStart(2, "0");
+
+    const minutes =
+        String(now.getMinutes()).padStart(2, "0");
+
+    const seconds =
+        String(now.getSeconds()).padStart(2, "0");
+
+    document.getElementById("systemClock").textContent =
+        `${hours}:${minutes}:${seconds}`;
+}
+
+updateClock();
+
+setInterval(updateClock, 1000);
+
 </script>
-```
 
 </body>
-
 </html>

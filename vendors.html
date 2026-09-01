@@ -26,7 +26,8 @@ main{max-width:1600px;margin:0 auto;padding:30px 32px 60px}.page-header{display:
 </main>
 <div class="modal" id="vendorModal"><div class="modal-card"><div class="modal-header"><div><div class="modal-title" id="modalTitle">ADD VENDOR</div><div class="status" id="modalSubtitle" style="margin-top:5px">CREATE NEW VENDOR RECORD</div></div><button class="close" id="closeModalButton" type="button">×</button></div><form class="form" id="vendorForm"><div class="field"><label>VENDOR NAME *</label><input id="vendorName" name="name" required maxlength="200" autocomplete="organization"></div><div id="formMessage" class="form-message"></div><div class="form-actions"><button type="button" id="cancelButton" class="button secondary">CANCEL</button><button type="submit" id="saveVendorButton" class="button">SAVE VENDOR</button></div></form></div></div>
 <script>
-const client = window.supabaseClient;
+/* Use the same global Supabase client as inventory.html. */
+const client = typeof supabaseClient !== "undefined" ? supabaseClient : null;
 let vendors = [];
 let editingVendorId = null;
 const tableBody=document.getElementById('vendorTableBody');
@@ -40,8 +41,32 @@ const modalTitle=document.getElementById('modalTitle');
 const modalSubtitle=document.getElementById('modalSubtitle');
 function escapeHtml(value){return String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));}
 function updateClock(){const now=new Date();document.getElementById('systemClock').textContent=[now.getHours(),now.getMinutes(),now.getSeconds()].map(v=>String(v).padStart(2,'0')).join(':')}updateClock();setInterval(updateClock,1000);
-async function loadUser(){try{const {data:{user}}=await client.auth.getUser();if(!user)return;const name=user.user_metadata?.full_name||user.email||'SYSTEM USER';document.getElementById('currentUserName').textContent=name.toUpperCase();document.getElementById('currentUserRole').textContent='AUTHENTICATED USER';document.getElementById('currentUserAvatar').textContent=name.slice(0,2).toUpperCase()}catch(e){console.warn('User load:',e)}}
-async function loadVendors(){resultStatus.textContent='LOADING...';tableBody.innerHTML='<tr><td colspan="3"><div class="loading">LOADING VENDORS...</div></td></tr>';const {data,error}=await client.from('vendors').select('id,name,active').eq('active',true).order('name');if(error){console.error('Vendor load error:',error);resultStatus.textContent='ERROR';tableBody.innerHTML=`<tr><td colspan="3"><div class="empty">UNABLE TO LOAD VENDORS.<br><br>${escapeHtml(error.message)}</div></td></tr>`;return}vendors=data||[];renderVendors();}
+async function loadUser(){
+  if(!client){
+    document.getElementById('currentUserName').textContent='SYSTEM USER';
+    document.getElementById('currentUserRole').textContent='SUPABASE CLIENT NOT FOUND';
+    return;
+  }
+  try{
+    const {data:{user},error}=await client.auth.getUser();
+    if(error||!user){
+      document.getElementById('currentUserName').textContent='NOT AUTHENTICATED';
+      document.getElementById('currentUserRole').textContent='PLEASE SIGN IN';
+      return;
+    }
+    const name=user.user_metadata?.full_name||user.email||'SYSTEM USER';
+    document.getElementById('currentUserName').textContent=name.toUpperCase();
+    document.getElementById('currentUserRole').textContent='AUTHENTICATED USER';
+    document.getElementById('currentUserAvatar').textContent=name.slice(0,2).toUpperCase();
+  }catch(e){
+    console.error('User load:',e);
+    document.getElementById('currentUserName').textContent='SYSTEM USER';
+    document.getElementById('currentUserRole').textContent='AUTH STATUS UNAVAILABLE';
+  }
+}
+async function loadVendors(){
+  if(!client){resultStatus.textContent='SUPABASE ERROR';tableBody.innerHTML='<tr><td colspan="3"><div class="empty">SUPABASE CLIENT IS NOT AVAILABLE.<br><br>CHECK js/supabase.js.</div></td></tr>';return;}
+  resultStatus.textContent='LOADING...';tableBody.innerHTML='<tr><td colspan="3"><div class="loading">LOADING VENDORS...</div></td></tr>';const {data,error}=await client.from('vendors').select('id,name,active').eq('active',true).order('name');if(error){console.error('Vendor load error:',error);resultStatus.textContent='ERROR';tableBody.innerHTML=`<tr><td colspan="3"><div class="empty">UNABLE TO LOAD VENDORS.<br><br>${escapeHtml(error.message)}</div></td></tr>`;return}vendors=data||[];renderVendors();}
 function renderVendors(){const term=searchInput.value.trim().toLowerCase();const filtered=vendors.filter(v=>(v.name||'').toLowerCase().includes(term));resultStatus.textContent=`${filtered.length} VENDOR${filtered.length===1?'':'S'} DISPLAYED`;if(!filtered.length){tableBody.innerHTML='<tr><td colspan="3"><div class="empty">NO VENDORS FOUND.</div></td></tr>';return}tableBody.innerHTML=filtered.map(v=>`<tr><td class="td"><strong>${escapeHtml(v.name)}</strong></td><td class="td"><span class="active-badge">ACTIVE</span></td><td class="td action-cell"><button type="button" class="actions-button" data-vendor-id="${escapeHtml(v.id)}">ACTIONS ▾</button><div class="vendor-actions-menu" data-menu-id="${escapeHtml(v.id)}"><button type="button" data-action="edit">EDIT VENDOR</button><button type="button" data-action="deactivate" class="delete">DEACTIVATE VENDOR</button></div></td></tr>`).join('');document.querySelectorAll('.actions-button').forEach(button=>button.addEventListener('click',e=>{e.stopPropagation();const id=button.dataset.vendorId;document.querySelectorAll('.vendor-actions-menu').forEach(m=>m.classList.remove('open'));document.querySelector(`[data-menu-id="${CSS.escape(id)}"]`)?.classList.toggle('open')}));document.querySelectorAll('.vendor-actions-menu button').forEach(button=>button.addEventListener('click',async e=>{e.stopPropagation();const menu=button.closest('.vendor-actions-menu');const vendor=vendors.find(v=>v.id===menu.dataset.menuId);menu.classList.remove('open');if(button.dataset.action==='edit')openEditModal(vendor);if(button.dataset.action==='deactivate')await deactivateVendor(vendor)}));}
 function openAddModal(){editingVendorId=null;modalTitle.textContent='ADD VENDOR';modalSubtitle.textContent='CREATE NEW VENDOR RECORD';form.reset();formMessage.textContent='';modal.style.display='block';setTimeout(()=>nameInput.focus(),50)}
 function openEditModal(vendor){if(!vendor)return;editingVendorId=vendor.id;modalTitle.textContent='EDIT VENDOR';modalSubtitle.textContent='UPDATE EXISTING VENDOR RECORD';nameInput.value=vendor.name||'';formMessage.textContent='EDITING EXISTING VENDOR RECORD.';modal.style.display='block';setTimeout(()=>nameInput.focus(),50)}
@@ -49,7 +74,11 @@ function closeModal(){modal.style.display='none';form.reset();formMessage.textCo
 async function saveVendor(e){e.preventDefault();const name=nameInput.value.trim();if(!name){formMessage.textContent='VENDOR NAME IS REQUIRED.';return}const saveButton=document.getElementById('saveVendorButton');saveButton.disabled=true;formMessage.textContent=editingVendorId?'UPDATING VENDOR...':'CREATING VENDOR...';try{let error;if(editingVendorId){({error}=await client.from('vendors').update({name}).eq('id',editingVendorId))}else{({error}=await client.from('vendors').insert({name,active:true}))}if(error)throw error;formMessage.textContent=editingVendorId?'VENDOR UPDATED.':'VENDOR CREATED.';await loadVendors();setTimeout(closeModal,400)}catch(error){console.error('Vendor save error:',error);formMessage.textContent=`UNABLE TO SAVE VENDOR: ${error.message}`}finally{saveButton.disabled=false}}
 async function deactivateVendor(vendor){if(!vendor)return;const confirmed=confirm(`Deactivate vendor "${vendor.name}"?\n\nThe vendor will be hidden from active vendor lists but the record will remain in the database.`);if(!confirmed)return;const {error}=await client.from('vendors').update({active:false}).eq('id',vendor.id);if(error){console.error('Vendor deactivate error:',error);alert(`Unable to deactivate vendor.\n\n${error.message}`);return}await loadVendors()}
 document.getElementById('addVendorButton').addEventListener('click',openAddModal);document.getElementById('closeModalButton').addEventListener('click',closeModal);document.getElementById('cancelButton').addEventListener('click',closeModal);form.addEventListener('submit',saveVendor);searchInput.addEventListener('input',renderVendors);document.addEventListener('click',()=>document.querySelectorAll('.vendor-actions-menu').forEach(m=>m.classList.remove('open')));modal.addEventListener('click',e=>{if(e.target===modal)closeModal()});document.getElementById('logoutButton').addEventListener('click',async()=>{await client.auth.signOut();window.location.href='index.html'});
-(async()=>{await loadUser();await loadVendors()})();
+// Bind the UI immediately; loading/authentication must never prevent the Add Vendor button from working.
+document.addEventListener('DOMContentLoaded',()=>{
+  loadUser();
+  loadVendors();
+});
 </script>
 </body>
 </html>

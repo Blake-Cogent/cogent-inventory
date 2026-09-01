@@ -9,7 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="js/supabase.js"></script>
 
-```
+
 <title>Cogent Hex | Inventory Control</title>
 
 <meta
@@ -702,13 +702,13 @@
     }
 
 </style>
-```
+
 
 </head>
 
 <body>
 
-```
+
 <!-- SYSTEM STATUS -->
 <div class="top-bar">
 
@@ -947,9 +947,7 @@
                 Total Inventory
             </div>
 
-            <div class="stat-value">
-                1,842
-            </div>
+            <div class="stat-value"><span id="totalInventory">--</span></div>
 
             <div class="stat-meta">
                 Active inventory items
@@ -964,9 +962,7 @@
                 Low Stock
             </div>
 
-            <div class="stat-value">
-                27
-            </div>
+            <div class="stat-value"><span id="lowStock">--</span></div>
 
             <div class="stat-meta">
                 Items below minimum
@@ -981,9 +977,7 @@
                 Out of Stock
             </div>
 
-            <div class="stat-value">
-                6
-            </div>
+            <div class="stat-value"><span id="outOfStock">--</span></div>
 
             <div class="stat-meta">
                 Immediate attention
@@ -998,9 +992,7 @@
                 Transactions
             </div>
 
-            <div class="stat-value">
-                146
-            </div>
+            <div class="stat-value"><span id="monthlyTransactions">--</span></div>
 
             <div class="stat-meta">
                 This month
@@ -1055,6 +1047,7 @@
 
             </div>
 
+            <div id="recentTransactions">
 
             <div class="transaction">
 
@@ -1157,6 +1150,10 @@
 
         </div>
 
+            </div>
+
+
+        
 
         <!-- LOW STOCK -->
         <div class="panel">
@@ -1198,6 +1195,7 @@
 
             </div>
 
+            <div id="lowStockItems">
 
             <div class="stock-row">
 
@@ -1298,6 +1296,8 @@
 
             </div>
 
+            </div>
+
         </div>
 
     </section>
@@ -1323,6 +1323,297 @@
 </footer>
 
 
+
+<!-- LIVE DASHBOARD DATA -->
+<script>
+(async function loadDashboardData() {
+
+    const totalInventoryEl = document.getElementById("totalInventory");
+    const lowStockEl = document.getElementById("lowStock");
+    const outOfStockEl = document.getElementById("outOfStock");
+    const monthlyTransactionsEl = document.getElementById("monthlyTransactions");
+    const recentTransactionsEl = document.getElementById("recentTransactions");
+    const lowStockItemsEl = document.getElementById("lowStockItems");
+
+    function formatQuantity(value) {
+        const number = Number(value || 0);
+        return Number.isInteger(number)
+            ? number.toLocaleString()
+            : number.toLocaleString(undefined, { maximumFractionDigits: 2 });
+    }
+
+    function escapeHtml(value) {
+        return String(value ?? "")
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+    }
+
+    function formatLocation(location) {
+        if (!location) return "UNASSIGNED";
+
+        const parts = [
+            location.building,
+            location.area,
+            location.aisle,
+            location.rack,
+            location.shelf,
+            location.bin
+        ].filter(Boolean);
+
+        return parts.length
+            ? parts.join(" / ")
+            : (location.name || "UNASSIGNED");
+    }
+
+    function formatTime(timestamp) {
+        return new Date(timestamp).toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false
+        });
+    }
+
+    function transactionLabel(type, quantity) {
+        if (type === "check_in") {
+            return `<span class="check-in">+${formatQuantity(quantity)} IN</span>`;
+        }
+
+        if (type === "check_out") {
+            return `<span class="check-out">CHECK OUT</span>`;
+        }
+
+        return `<span class="check-in">ADJUSTMENT</span>`;
+    }
+
+    try {
+
+        /*
+         * The existing dashboard calls Total Inventory
+         * "Active inventory items", so this is an item count,
+         * not a sum of units.
+         */
+        const { data: inventory, error: inventoryError } =
+            await supabaseClient
+                .from("inventory_items")
+                .select(`
+                    id,
+                    description,
+                    part_number,
+                    quantity_on_hand,
+                    minimum_quantity,
+                    location_id,
+                    locations (
+                        name,
+                        building,
+                        area,
+                        aisle,
+                        rack,
+                        shelf,
+                        bin
+                    )
+                `)
+                .eq("active", true);
+
+        if (inventoryError) throw inventoryError;
+
+        const lowStockItems = inventory.filter(item =>
+            Number(item.quantity_on_hand) <= Number(item.minimum_quantity)
+        );
+
+        const outOfStockItems = inventory.filter(item =>
+            Number(item.quantity_on_hand) === 0
+        );
+
+        totalInventoryEl.textContent = inventory.length.toLocaleString();
+        lowStockEl.textContent = lowStockItems.length.toLocaleString();
+        outOfStockEl.textContent = outOfStockItems.length.toLocaleString();
+
+
+        /* TRANSACTIONS THIS MONTH */
+        const now = new Date();
+        const monthStart = new Date(now.getFullYear(), now.getMonth(), 1);
+
+        const { count: monthlyTransactionCount, error: countError } =
+            await supabaseClient
+                .from("inventory_transactions")
+                .select("id", { count: "exact", head: true })
+                .gte("created_at", monthStart.toISOString());
+
+        if (countError) throw countError;
+
+        monthlyTransactionsEl.textContent =
+            Number(monthlyTransactionCount || 0).toLocaleString();
+
+
+        /* RECENT ACTIVITY */
+        const { data: transactions, error: transactionsError } =
+            await supabaseClient
+                .from("inventory_transactions")
+                .select(`
+                    id,
+                    transaction_type,
+                    quantity,
+                    created_at,
+                    inventory_items (
+                        description,
+                        part_number
+                    )
+                `)
+                .order("created_at", { ascending: false })
+                .limit(5);
+
+        if (transactionsError) throw transactionsError;
+
+        if (!transactions || transactions.length === 0) {
+
+            recentTransactionsEl.innerHTML = `
+                <div class="transaction">
+                    <div class="transaction-time">--:--</div>
+                    <div>
+                        <div class="transaction-item">No transactions yet</div>
+                        <div class="transaction-part">
+                            Inventory activity will appear here
+                        </div>
+                    </div>
+                    <div class="transaction-type">--</div>
+                </div>
+            `;
+
+        } else {
+
+            recentTransactionsEl.innerHTML = transactions.map(transaction => {
+
+                const item = transaction.inventory_items;
+                const itemName = item?.description || "Unknown Item";
+                const partNumber = item?.part_number || "NO PART NUMBER";
+
+                return `
+                    <div class="transaction">
+
+                        <div class="transaction-time">
+                            ${escapeHtml(formatTime(transaction.created_at))}
+                        </div>
+
+                        <div>
+                            <div class="transaction-item">
+                                ${escapeHtml(itemName)}
+                            </div>
+
+                            <div class="transaction-part">
+                                ${escapeHtml(partNumber)}
+                            </div>
+                        </div>
+
+                        <div class="transaction-type">
+                            ${transactionLabel(
+                                transaction.transaction_type,
+                                transaction.quantity
+                            )}
+                        </div>
+
+                    </div>
+                `;
+
+            }).join("");
+        }
+
+
+        /* LOW STOCK */
+        if (lowStockItems.length === 0) {
+
+            lowStockItemsEl.innerHTML = `
+                <div class="stock-row">
+                    <div>
+                        <div class="stock-name">No low-stock items</div>
+                        <div class="stock-part">
+                            Inventory levels are currently above minimum
+                        </div>
+                    </div>
+                    <div class="stock-location">--</div>
+                    <div class="stock-quantity">OK</div>
+                </div>
+            `;
+
+        } else {
+
+            lowStockItemsEl.innerHTML =
+                lowStockItems
+                    .sort((a, b) =>
+                        Number(a.quantity_on_hand) -
+                        Number(b.quantity_on_hand)
+                    )
+                    .slice(0, 5)
+                    .map(item => `
+                        <div class="stock-row">
+
+                            <div>
+                                <div class="stock-name">
+                                    ${escapeHtml(item.description)}
+                                </div>
+
+                                <div class="stock-part">
+                                    ${escapeHtml(item.part_number)}
+                                </div>
+                            </div>
+
+                            <div class="stock-location">
+                                ${escapeHtml(formatLocation(item.locations))}
+                            </div>
+
+                            <div class="stock-quantity">
+                                ${formatQuantity(item.quantity_on_hand)}
+                                /
+                                ${formatQuantity(item.minimum_quantity)}
+                            </div>
+
+                        </div>
+                    `)
+                    .join("");
+        }
+
+    } catch (error) {
+
+        console.error("Dashboard data error:", error);
+
+        totalInventoryEl.textContent = "ERR";
+        lowStockEl.textContent = "ERR";
+        outOfStockEl.textContent = "ERR";
+        monthlyTransactionsEl.textContent = "ERR";
+
+        recentTransactionsEl.innerHTML = `
+            <div class="transaction">
+                <div class="transaction-time">ERROR</div>
+                <div>
+                    <div class="transaction-item">
+                        Unable to load activity
+                    </div>
+                    <div class="transaction-part">
+                        Check the browser console for details
+                    </div>
+                </div>
+                <div class="transaction-type check-out">ERROR</div>
+            </div>
+        `;
+
+        lowStockItemsEl.innerHTML = `
+            <div class="stock-row">
+                <div>
+                    <div class="stock-name">Unable to load inventory</div>
+                    <div class="stock-part">
+                        Check the browser console for details
+                    </div>
+                </div>
+                <div class="stock-location">--</div>
+                <div class="stock-quantity">ERR</div>
+            </div>
+        `;
+    }
+
+})();
+</script>
 
 <!-- SUPABASE AUTHENTICATION -->
 <script>
@@ -1357,9 +1648,7 @@
         user.email;
 
     const roleName =
-        profile.role
-            .replace("_", " ")
-            .toUpperCase();
+        profile.role.replace("_", " ").toUpperCase();
 
     const initials =
         displayName
@@ -1422,7 +1711,7 @@
     setInterval(updateClock, 1000);
 
 </script>
-```
+
 
 </body>
 </html>
